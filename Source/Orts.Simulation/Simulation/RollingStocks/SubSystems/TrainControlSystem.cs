@@ -27,6 +27,8 @@ using Orts.Common;
 using Orts.Formats.Msts;
 using Orts.Parsers.Msts;
 using Orts.Simulation.Physics;
+using Orts.Simulation.RollingStocks.SubSystems.Brakes;
+using Orts.Simulation.RollingStocks.SubSystems.Brakes.MSTS;
 using Orts.Simulation.RollingStocks.SubSystems.PowerSupplies;
 using ORTS.Common;
 using ORTS.Scripting.Api;
@@ -99,6 +101,47 @@ namespace Orts.Simulation.RollingStocks.SubSystems
                 ResetOnDirectionNeutral = other.ResetOnDirectionNeutral;
                 ResetOnZeroSpeed = other.ResetOnZeroSpeed;
                 ResetOnResetButton = other.ResetOnResetButton;
+            }
+        }
+
+        // Traction cut-off parameters
+        public bool DoesBrakeCutPower { get; private set; }
+        public bool DoesVacuumBrakeCutPower { get; private set; }
+        public float BrakeCutsPowerAtBrakeCylinderPressurePSI { get; private set; } = 4.0f;
+        public float BrakeCutsPowerAtBrakePipePressurePSI { get; private set; }
+        public float BrakeRestoresPowerAtBrakePipePressurePSI { get; private set; }
+        public float BrakeCutsPowerForMinimumSpeedMpS { get; private set; }
+        public bool BrakeCutsPowerUntilTractionCommandCancelled { get; private set; }
+        public BrakeTractionCutOffModeType BrakeTractionCutOffMode
+        {
+            get
+            {
+                if (DoesBrakeCutPower && !DoesVacuumBrakeCutPower) // Air brake system
+                {
+                    if (BrakeCutsPowerAtBrakePipePressurePSI > 0f)
+                    {
+                        if (BrakeRestoresPowerAtBrakePipePressurePSI > 0f)
+                        {
+                            return BrakeTractionCutOffModeType.AirBrakePipeHysteresis;
+                        }
+                        else
+                        {
+                            return BrakeTractionCutOffModeType.AirBrakePipeSinglePressure;
+                        }
+                    }
+                    else // Default to brake cylinder
+                    {
+                        return BrakeTractionCutOffModeType.AirBrakeCylinderSinglePressure;
+                    }
+                }
+                else if (!DoesBrakeCutPower && DoesVacuumBrakeCutPower) // Vacuum brake system
+                {
+                    return BrakeTractionCutOffModeType.VacuumBrakePipeHysteresis;
+                }
+                else
+                {
+                    return BrakeTractionCutOffModeType.None;
+                }
             }
         }
 
@@ -201,6 +244,25 @@ namespace Orts.Simulation.RollingStocks.SubSystems
                 case "engine(ortstraincontrolsystem": ScriptName = stf.ReadStringBlock(null); break;
                 case "engine(ortstraincontrolsystemsound": SoundFileName = stf.ReadStringBlock(null); break;
                 case "engine(ortstraincontrolsystemparameters": ParametersFileName = stf.ReadStringBlock(null); break;
+                case "engine(ortsdoesvacuumbrakecutpower":
+                    DoesVacuumBrakeCutPower = stf.ReadBoolBlock(false);
+                    if (DoesBrakeCutPower)
+                    {
+                        STFException.TraceWarning(stf, "DoesBrakeCutPower (for pneumatic brake systems) and ORTSDoesVacuumCutPower (for vacuum brake systems) are both set");
+                    }
+                    break;
+                case "engine(doesbrakecutpower":
+                    DoesBrakeCutPower = stf.ReadBoolBlock(false);
+                    if (DoesVacuumBrakeCutPower)
+                    {
+                        STFException.TraceWarning(stf, "DoesBrakeCutPower (for pneumatic brake systems) and ORTSDoesVacuumCutPower (for vacuum brake systems) are both set");
+                    }
+                    break;
+                case "engine(brakecutspoweratbrakecylinderpressure": BrakeCutsPowerAtBrakeCylinderPressurePSI = stf.ReadFloatBlock(STFReader.UNITS.PressureDefaultPSI, null); break;
+                case "engine(ortsbrakecutspoweratbrakepipepressure": BrakeCutsPowerAtBrakePipePressurePSI = stf.ReadFloatBlock(STFReader.UNITS.PressureDefaultPSI, null); break;
+                case "engine(ortsbrakerestorespoweratbrakepipepressure": BrakeRestoresPowerAtBrakePipePressurePSI = stf.ReadFloatBlock(STFReader.UNITS.PressureDefaultPSI, null); break;
+                case "engine(ortsbrakecutspowerforminimumspeed": BrakeCutsPowerForMinimumSpeedMpS = stf.ReadFloatBlock(STFReader.UNITS.Speed, null); break;
+                case "engine(ortsbrakecutspoweruntiltractioncommandcancelled": BrakeCutsPowerUntilTractionCommandCancelled = stf.ReadBoolBlock(false); break;
             }
         }
 
@@ -214,6 +276,14 @@ namespace Orts.Simulation.RollingStocks.SubSystems
             if (other.OverspeedMonitor != null) OverspeedMonitor = new MonitoringDevice(other.OverspeedMonitor);
             if (other.EmergencyStopMonitor != null) EmergencyStopMonitor = new MonitoringDevice(other.EmergencyStopMonitor);
             if (other.AWSMonitor != null) AWSMonitor = new MonitoringDevice(other.AWSMonitor);
+
+            DoesBrakeCutPower = other.DoesBrakeCutPower;
+            DoesVacuumBrakeCutPower = other.DoesVacuumBrakeCutPower;
+            BrakeCutsPowerAtBrakeCylinderPressurePSI = other.BrakeCutsPowerAtBrakeCylinderPressurePSI;
+            BrakeCutsPowerAtBrakePipePressurePSI = other.BrakeCutsPowerAtBrakePipePressurePSI;
+            BrakeRestoresPowerAtBrakePipePressurePSI = other.BrakeRestoresPowerAtBrakePipePressurePSI;
+            BrakeCutsPowerForMinimumSpeedMpS = other.BrakeCutsPowerForMinimumSpeedMpS;
+            BrakeCutsPowerUntilTractionCommandCancelled = other.BrakeCutsPowerUntilTractionCommandCancelled;
         }
 
         //Debrief Eval
@@ -224,6 +294,28 @@ namespace Orts.Simulation.RollingStocks.SubSystems
         {
             if (!Activated)
             {
+                #region Parameters sanity checks
+                if ((DoesBrakeCutPower || DoesVacuumBrakeCutPower) && BrakeCutsPowerAtBrakePipePressurePSI > BrakeRestoresPowerAtBrakePipePressurePSI)
+                {
+                    BrakeCutsPowerAtBrakePipePressurePSI = BrakeRestoresPowerAtBrakePipePressurePSI - 1.0f;
+
+                    if (Simulator.Settings.VerboseConfigurationMessages)
+                    {
+                        Trace.TraceInformation("BrakeCutsPowerAtBrakePipePressure is greater then BrakeRestoresPowerAtBrakePipePressure, and has been set to value of {0}", FormatStrings.FormatPressure(BrakeCutsPowerAtBrakePipePressurePSI, PressureUnit.PSI, Locomotive.BrakeSystemPressureUnits[BrakeSystemComponent.BrakePipe], true));
+                    }
+                }
+
+                if (DoesVacuumBrakeCutPower && Locomotive.BrakeSystem is VacuumSinglePipe && (BrakeRestoresPowerAtBrakePipePressurePSI == 0 || BrakeRestoresPowerAtBrakePipePressurePSI > VacuumSinglePipe.OneAtmospherePSI))
+                {
+                    BrakeRestoresPowerAtBrakePipePressurePSI = Bar.ToPSI(Bar.FromInHg(15.0f)); // Power can be restored once brake pipe rises above 15 InHg
+
+                    if (Simulator.Settings.VerboseConfigurationMessages)
+                    {
+                        Trace.TraceInformation("BrakeRestoresPowerAtBrakePipePressure appears out of limits, and has been set to value of {0} InHg", Bar.ToInHg(Bar.FromPSI(BrakeRestoresPowerAtBrakePipePressurePSI)));
+                    }
+                }
+                #endregion
+
                 if (!Simulator.Settings.DisableTCSScripts && ScriptName != null && ScriptName != "MSTS" && ScriptName != "")
                 {
                     var pathArray = new string[] { Path.Combine(Path.GetDirectoryName(Locomotive.WagFilePath), "Script") };
@@ -365,8 +457,14 @@ namespace Orts.Simulation.RollingStocks.SubSystems
                 Script.TractionAuthorization = () => TractionAuthorization;
                 Script.BrakePipePressureBar = () => Locomotive.BrakeSystem != null ? Bar.FromPSI(Locomotive.BrakeSystem.BrakeLine1PressurePSI) : float.MaxValue;
                 Script.LocomotiveBrakeCylinderPressureBar = () => Locomotive.BrakeSystem != null ? Bar.FromPSI(Locomotive.BrakeSystem.GetCylPressurePSI()) : float.MaxValue;
-                Script.DoesBrakeCutPower = () => Locomotive.DoesBrakeCutPower;
-                Script.BrakeCutsPowerAtBrakeCylinderPressureBar = () => Bar.FromPSI(Locomotive.BrakeCutsPowerAtBrakeCylinderPressurePSI);
+                Script.DoesBrakeCutPower = () => DoesBrakeCutPower;
+                Script.DoesVacuumBrakeCutPower = () => DoesVacuumBrakeCutPower;
+                Script.BrakeCutsPowerAtBrakeCylinderPressureBar = () => Bar.FromPSI(BrakeCutsPowerAtBrakeCylinderPressurePSI);
+                Script.BrakeCutsPowerAtBrakePipePressureBar = () => Locomotive.BrakeSystem is VacuumSinglePipe ? Bar.FromPSI(VacuumSinglePipe.OneAtmospherePSI - BrakeCutsPowerAtBrakePipePressurePSI) : Bar.FromPSI(BrakeCutsPowerAtBrakePipePressurePSI);
+                Script.BrakeRestoresPowerAtBrakePipePressureBar = () => Locomotive.BrakeSystem is VacuumSinglePipe ? Bar.FromPSI(VacuumSinglePipe.OneAtmospherePSI - BrakeRestoresPowerAtBrakePipePressurePSI) : Bar.FromPSI(BrakeRestoresPowerAtBrakePipePressurePSI);
+                Script.BrakeCutsPowerForMinimumSpeedMpS = () => BrakeCutsPowerForMinimumSpeedMpS;
+                Script.BrakeCutsPowerUntilTractionCommandCancelled = () => BrakeCutsPowerUntilTractionCommandCancelled;
+                Script.BrakeTractionCutOffMode = () => BrakeTractionCutOffMode;
                 Script.TrainBrakeControllerState = () => Locomotive.TrainBrakeController.TrainBrakeControllerState;
                 Script.AccelerationMpSS = () => Locomotive.AccelerationMpSS;
                 Script.AltitudeM = () => Locomotive.WorldPosition.Location.Y;
@@ -525,7 +623,7 @@ namespace Orts.Simulation.RollingStocks.SubSystems
                         Trace.TraceWarning("SetCustomizedTCSControlString is deprecated. Please use SetCustomizedCabviewControlName.");
                     }
 
-                    CustomizedCabviewControlNames[NextCabviewControlNameToEdit] = value;
+                        CustomizedCabviewControlNames[NextCabviewControlNameToEdit] = value;
 
                     NextCabviewControlNameToEdit++;
                 };
@@ -1188,7 +1286,7 @@ namespace Orts.Simulation.RollingStocks.SubSystems
                         PowerCut |= ExternalEmergency;
                 }
 
-                SetTractionAuthorization(!DoesBrakeCutPower() || LocomotiveBrakeCylinderPressureBar() < BrakeCutsPowerAtBrakeCylinderPressureBar());
+                UpdateTractionCutOff();
 
                 SetEmergencyBrake(EmergencyBrake);
                 SetFullBrake(FullBrake);
@@ -1483,6 +1581,73 @@ namespace Orts.Simulation.RollingStocks.SubSystems
             }
 
             SetOverspeedWarningDisplay(OverspeedMonitorState >= MonitorState.Alarm);
+        }
+
+        public void UpdateTractionCutOff()
+        {
+            // If BrakeCutsPowerForSpeedAbove is not set (== 0), the brake pressure check is always active.
+            if (SpeedMpS() >= BrakeCutsPowerForMinimumSpeedMpS())
+            {
+                switch (BrakeTractionCutOffMode())
+                {
+                    case BrakeTractionCutOffModeType.None:
+                        SetTractionAuthorization(true);
+                        break;
+
+                    case BrakeTractionCutOffModeType.AirBrakeCylinderSinglePressure:
+                        if (LocomotiveBrakeCylinderPressureBar() >= BrakeCutsPowerAtBrakeCylinderPressureBar())
+                        {
+                            SetTractionAuthorization(false);
+                        }
+                        else if (!BrakeCutsPowerUntilTractionCommandCancelled() || ThrottlePercent() <= 0f)
+                        {
+                            SetTractionAuthorization(true);
+                        }
+                        break;
+
+                    case BrakeTractionCutOffModeType.AirBrakePipeSinglePressure:
+                        if (BrakePipePressureBar() <= BrakeCutsPowerAtBrakePipePressureBar())
+                        {
+                            SetTractionAuthorization(false);
+                        }
+                        else if (!BrakeCutsPowerUntilTractionCommandCancelled() || ThrottlePercent() <= 0f)
+                        {
+                            SetTractionAuthorization(true);
+                        }
+                        break;
+
+                    case BrakeTractionCutOffModeType.AirBrakePipeHysteresis:
+                        if (BrakePipePressureBar() <= BrakeCutsPowerAtBrakePipePressureBar())
+                        {
+                            SetTractionAuthorization(false);
+                        }
+                        else if (BrakePipePressureBar() >= BrakeRestoresPowerAtBrakePipePressureBar()
+                            && (!BrakeCutsPowerUntilTractionCommandCancelled() || ThrottlePercent() <= 0f))
+                        {
+                            SetTractionAuthorization(true);
+                        }
+                        break;
+
+                    case BrakeTractionCutOffModeType.VacuumBrakePipeHysteresis:
+                        if (BrakePipePressureBar() >= BrakeCutsPowerAtBrakePipePressureBar())
+                        {
+                            SetTractionAuthorization(false);
+                        }
+                        else if (BrakePipePressureBar() <= BrakeRestoresPowerAtBrakePipePressureBar()
+                            && (!BrakeCutsPowerUntilTractionCommandCancelled() || ThrottlePercent() <= 0f))
+                        {
+                            SetTractionAuthorization(true);
+                        }
+                        break;
+                }
+            }
+            else
+            {
+                if (!BrakeCutsPowerUntilTractionCommandCancelled() || ThrottlePercent() <= 0f)
+                {
+                    SetTractionAuthorization(true);
+                }
+            }
         }
     }
 }
