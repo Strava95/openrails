@@ -1294,6 +1294,7 @@ namespace Orts.Simulation.RollingStocks.SubSystems
                 }
 
                 UpdateTractionCutOff();
+                SetTractionAuthorization(!TractionCutOffRequested);
 
                 SetEmergencyBrake(EmergencyBrake);
                 SetFullBrake(FullBrake);
