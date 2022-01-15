@@ -19,6 +19,6 @@ install:
 build_script:
 - cmd: Build.cmd unstable
 test: off
-# artifacts:
-# - path: OpenRails-Unstable.zip
+artifacts:
+- path: OpenRails-Unstable.zip
 # - path: OpenRails-Unstable-Source.zip
