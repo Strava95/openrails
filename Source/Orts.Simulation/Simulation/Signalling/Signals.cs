@@ -918,7 +918,7 @@ namespace Orts.Simulation.Signalling
                                 sigItem.SigObj = -1;
                             }
                         }
-        // Track Item is speedpost - check if really limit
+                        // Track Item is speedpost - check if really limit
                         else if (TrItems[TDBRef].ItemType == TrItem.trItemType.trSPEEDPOST)
                         {
                             SpeedPostItem speedItem = (SpeedPostItem)TrItems[TDBRef];
@@ -1129,8 +1129,8 @@ namespace Orts.Simulation.Signalling
             foreach (SignalObject signal in SignalObjects)
             {
                 signal?.SetSignalType(sigCFG);
-                    }
-                }
+            }
+        }
 
         /// <summary>
         /// Add info from signal world objects to signal
@@ -1353,8 +1353,8 @@ namespace Orts.Simulation.Signalling
                     }
                 }
 
-                    // next section accessed via next route element
-                    if (locstate == ObjectItemInfo.ObjectItemFindState.None)
+                // next section accessed via next route element
+                if (locstate == ObjectItemInfo.ObjectItemFindState.None)
                 {
                     totalLength += thisSection.Length - lengthOffset;
                     lengthOffset = 0;
@@ -4116,7 +4116,7 @@ namespace Orts.Simulation.Signalling
                     PlatformXRefList.Add(thisIndex, thisPlatformDetailsIndex);
                     refIndex = 1;
                 }
-        // create new platform details
+                // create new platform details
                 else
                 {
                     thisDetails = new PlatformDetails(thisIndex);
@@ -4147,7 +4147,7 @@ namespace Orts.Simulation.Signalling
                 for (int iXRef = thisNode.TCCrossReference.Count - 1; iXRef >= 0 && TCSectionIndex < 0; iXRef--)
                 {
                     if (thisPlatform.SData1 <
-                     (thisNode.TCCrossReference[iXRef].OffsetLength[1] + thisNode.TCCrossReference[iXRef].Length))
+                        (thisNode.TCCrossReference[iXRef].OffsetLength[1] + thisNode.TCCrossReference[iXRef].Length))
                     {
                         TCSectionIndex = thisNode.TCCrossReference[iXRef].Index;
                         TCXRefIndex = iXRef;
@@ -4166,7 +4166,7 @@ namespace Orts.Simulation.Signalling
                 {
                     thisDetails.TCSectionIndex.Add(TCSectionIndex);
                 }
-        // if second entry, test if equal - if not, build list
+                // if second entry, test if equal - if not, build list
                 else
                 {
                     if (TCSectionIndex != thisDetails.TCSectionIndex[0])
@@ -4223,7 +4223,7 @@ namespace Orts.Simulation.Signalling
                     thisDetails.Name = string.Copy(thisPlatform.Station);
                     thisDetails.MinWaitingTime = thisPlatform.PlatformMinWaitingTime;
                     thisDetails.NumPassengersWaiting = (int)thisPlatform.PlatformNumPassengersWaiting;
-                 }
+                }
                 else if (!splitPlatform)
                 {
                     thisDetails.Length = Math.Abs(thisDetails.nodeOffset[1] - thisDetails.nodeOffset[0]);
@@ -5181,5 +5181,5 @@ namespace Orts.Simulation.Signalling
             }
             return switchSet;
         }
-        }
+    }
 }
