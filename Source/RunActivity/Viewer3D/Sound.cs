@@ -403,12 +403,18 @@ namespace Orts.Viewer3D
                                 if (thisSection.CircuitType == TrackCircuitSection.TrackCircuitType.Junction || thisSection.CircuitType == TrackCircuitSection.TrackCircuitType.Crossover)
                                 {
                                     // train is on a switch; let's see if car is on a switch too
-                                    WorldLocation switchLocation = UidLocation(Viewer.Simulator.TDB.TrackDB.TrackNodes[thisSection.OriginalIndex].UiD);
-                                    var distanceFromSwitch = WorldLocation.GetDistanceSquared(Car.WorldPosition.WorldLocation, switchLocation);
-                                    if (distanceFromSwitch < Car.CarLengthM * Car.CarLengthM + Math.Min(Car.SpeedMpS * 3, 150))
+                                    UiD uid = Viewer.Simulator.TDB.TrackDB.TrackNodes[thisSection.OriginalIndex].UiD;
+                                    // UiD can be null due to TDB error
+                                    if (uid != null)
                                     {
-                                        CarOnSwitch = true;
-                                        break;
+                                        WorldLocation switchLocation = UidLocation(uid);
+                                        var distanceFromSwitch = WorldLocation.GetDistanceSquared(Car.WorldPosition.WorldLocation, switchLocation);
+                                        if (distanceFromSwitch < Car.CarLengthM * Car.CarLengthM +
+                                            Math.Min(Car.SpeedMpS * 3, 150))
+                                        {
+                                            CarOnSwitch = true;
+                                            break;
+                                        }
                                     }
                                 }
                             }
