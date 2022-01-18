@@ -779,8 +779,12 @@ namespace Orts.Viewer3D.Processes
                 logFileName = GetFilePath(settings, fileName);
 
                 // Ensure we start with an empty file.
-                if (!appendLog)
+                if (!appendLog && File.Exists(logFileName))
+                {
+                    File.SetAttributes(logFileName, FileAttributes.Normal);
                     File.Delete(logFileName);
+                }
+
                 // Make Console.Out go to the log file AND the output stream.
                 Console.SetOut(new FileTeeLogger(logFileName, Console.Out));
                 // Make Console.Error go to the new Console.Out.
