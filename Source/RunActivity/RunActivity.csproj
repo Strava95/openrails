@@ -23,14 +23,6 @@
     <ApplicationManifest>..\Launcher\app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="GNU.Gettext, Version=1.1.5151.39896, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\3rdPartyLibs\GNU.Gettext.dll</HintPath>
-    </Reference>
-    <Reference Include="GNU.Gettext.WinForms, Version=1.0.5151.39911, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\3rdPartyLibs\GNU.Gettext.WinForms.dll</HintPath>
-    </Reference>
     <Reference Include="MonoGame.Framework">
       <HintPath>$(SolutionDir)\3rdPartyLibs\MonoGame\MonoGame.Framework.dll</HintPath>
     </Reference>
@@ -663,6 +655,8 @@
       <Project>{333c4378-d82e-4b47-b561-6ba923b8fdfd}</Project>
       <Name>Orts.Simulation</Name>
     </ProjectReference>
+    <ProjectReference Include="..\3rdPartyLibs\GNU.Gettext.WinForms\GNU.Gettext.WinForms.csproj" />
+    <ProjectReference Include="..\3rdPartyLibs\GNU.Gettext\GNU.Gettext.csproj" />
     <ProjectReference Include="..\Orts.Formats.Msts\Orts.Formats.Msts.csproj" />
     <ProjectReference Include="..\Orts.Formats.OR\Orts.Formats.OR.csproj" />
     <ProjectReference Include="..\Orts.Parsers.Msts\Orts.Parsers.Msts.csproj" />

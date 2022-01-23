@@ -1143,7 +1143,7 @@ namespace ORTS.TrackViewer
         /// <summary>
         /// This is the 'catalog' needed for localization of TrackViewer (meaning translating it to different languages)
         /// </summary>
-        public static GettextResourceManager catalog = new GettextResourceManager("Contrib");
+        public static GettextResourceManager catalog = new GettextResourceManager("TrackViewer");
 
         /// <summary>
         /// Routine to localize (make languague-dependent) a WPF/framework element, like a menu.

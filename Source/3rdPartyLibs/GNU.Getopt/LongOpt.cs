@@ -21,7 +21,6 @@
 /**************************************************************************/
 
 using System;
-using System.Configuration;
 using System.Globalization;
 using System.Reflection;
 using System.Resources;
@@ -29,11 +28,11 @@ using System.Text;
 
 namespace GNU.Getopt
 {
-	/// <summary>
-	/// Constant enumeration values used for the LongOpt <c>hasArg</c>
-	/// constructor argument.
-	/// </summary>
-	public enum Argument 
+    /// <summary>
+    /// Constant enumeration values used for the LongOpt <c>hasArg</c>
+    /// constructor argument.
+    /// </summary>
+    public enum Argument 
 	{
 		/// <summary>
 		/// This value indicates that the option takes no argument.
@@ -136,21 +135,6 @@ namespace GNU.Getopt
 		public LongOpt(string name, Argument hasArg, StringBuilder flag,
 			int val)
 		{
-			// Check for application setting "Gnu.PosixlyCorrect" to determine
-			// whether to strictly follow the POSIX standard. This replaces the
-			// "POSIXLY_CORRECT" environment variable in the C version
-			try 
-			{
-				if((bool) new AppSettingsReader().GetValue(
-					"Gnu.PosixlyCorrect", typeof(bool))) 
-				{
-					this.cultureInfo = new CultureInfo("en-US");
-				}
-			}
-			catch(Exception)
-			{
-			}
-
 			// Validate hasArg
 			if ((hasArg != Argument.No) && (hasArg != Argument.Required) &&
 				(hasArg != Argument.Optional))

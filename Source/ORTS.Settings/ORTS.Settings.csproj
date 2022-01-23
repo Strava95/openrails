@@ -17,15 +17,12 @@
     <DocumentationFile>..\..\Program\ORTS.Settings.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="GNU.Gettext, Version=1.1.5151.39896, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\3rdPartyLibs\GNU.Gettext.dll</HintPath>
-    </Reference>
     <Reference Include="MonoGame.Framework">
       <HintPath>$(SolutionDir)\3rdPartyLibs\MonoGame\MonoGame.Framework.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\3rdPartyLibs\GNU.Gettext\GNU.Gettext.csproj" />
     <ProjectReference Include="..\ORTS.Common\ORTS.Common.csproj" />
   </ItemGroup>
   <ItemGroup>

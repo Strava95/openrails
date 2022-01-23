@@ -53,6 +53,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ContentChecker", "ContentCh
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimulatorTester", "Contrib\SimulatorTester\SimulatorTester.csproj", "{792B01A1-5C43-4FFA-A4C0-BBDC95A4A178}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GNU.Getopt", "3rdPartyLibs\GNU.Getopt\GNU.Getopt.csproj", "{1BA98AEE-5E5F-4449-9775-0C77E0608570}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GNU.Gettext", "3rdPartyLibs\GNU.Gettext\GNU.Gettext.csproj", "{A46D291C-B40D-4A02-9A73-A35CC0C73B6F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GNU.Gettext.Msgfmt", "3rdPartyLibs\GNU.Gettext.Msgfmt\GNU.Gettext.Msgfmt.csproj", "{B7F020DC-FAD6-4239-88AC-97CA693E6293}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GNU.Gettext.Xgettext", "3rdPartyLibs\GNU.Gettext.Xgettext\GNU.Gettext.Xgettext.csproj", "{95B826D6-4727-4FAA-A2BE-6C5CB157C21F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GNU.Gettext.WinForms", "3rdPartyLibs\GNU.Gettext.WinForms\GNU.Gettext.WinForms.csproj", "{A458C869-B3C4-4130-8D3F-00F44548DD5C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -159,6 +169,26 @@ Global
 		{792B01A1-5C43-4FFA-A4C0-BBDC95A4A178}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{792B01A1-5C43-4FFA-A4C0-BBDC95A4A178}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{792B01A1-5C43-4FFA-A4C0-BBDC95A4A178}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1BA98AEE-5E5F-4449-9775-0C77E0608570}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1BA98AEE-5E5F-4449-9775-0C77E0608570}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1BA98AEE-5E5F-4449-9775-0C77E0608570}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1BA98AEE-5E5F-4449-9775-0C77E0608570}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A46D291C-B40D-4A02-9A73-A35CC0C73B6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A46D291C-B40D-4A02-9A73-A35CC0C73B6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A46D291C-B40D-4A02-9A73-A35CC0C73B6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A46D291C-B40D-4A02-9A73-A35CC0C73B6F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B7F020DC-FAD6-4239-88AC-97CA693E6293}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7F020DC-FAD6-4239-88AC-97CA693E6293}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B7F020DC-FAD6-4239-88AC-97CA693E6293}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B7F020DC-FAD6-4239-88AC-97CA693E6293}.Release|Any CPU.Build.0 = Release|Any CPU
+		{95B826D6-4727-4FAA-A2BE-6C5CB157C21F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95B826D6-4727-4FAA-A2BE-6C5CB157C21F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95B826D6-4727-4FAA-A2BE-6C5CB157C21F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95B826D6-4727-4FAA-A2BE-6C5CB157C21F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A458C869-B3C4-4130-8D3F-00F44548DD5C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A458C869-B3C4-4130-8D3F-00F44548DD5C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A458C869-B3C4-4130-8D3F-00F44548DD5C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A458C869-B3C4-4130-8D3F-00F44548DD5C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

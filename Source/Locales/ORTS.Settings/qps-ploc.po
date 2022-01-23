@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ORTS.Settings\n"
-"POT-Creation-Date: 2021-09-15 03:48:20+0200\n"
-"PO-Revision-Date: 2021-09-15 03:48:20+0200\n"
+"POT-Creation-Date: 2022-01-24 05:39:25+0100\n"
+"PO-Revision-Date: 2022-01-24 05:39:25+0100\n"
 "Last-Translator: \n"
 "Language-Team: Open Rails Dev Team\n"
 "Language: qps-ploc\n"
@@ -13,22 +13,22 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 
-#: ../../ORTS.Settings/InputSettings.cs:526
+#: ../../ORTS.Settings/InputSettings.cs:537
 #, csharp-format
 msgid "{0} requires and is modified by Shift"
 msgstr "[{0} řè9úïřèƨ áñδ ïƨ ₥ôδïƒïèδ β¥ §λïƒƭ !!!]"
 
-#: ../../ORTS.Settings/InputSettings.cs:528
+#: ../../ORTS.Settings/InputSettings.cs:539
 #, csharp-format
 msgid "{0} requires and is modified by Control"
 msgstr "[{0} řè9úïřèƨ áñδ ïƨ ₥ôδïƒïèδ β¥ Çôñƭřôℓ !!!]"
 
-#: ../../ORTS.Settings/InputSettings.cs:530
+#: ../../ORTS.Settings/InputSettings.cs:541
 #, csharp-format
 msgid "{0} requires and is modified by Alt"
 msgstr "[{0} řè9úïřèƨ áñδ ïƨ ₥ôδïƒïèδ β¥ Âℓƭ !!!]"
 
-#: ../../ORTS.Settings/InputSettings.cs:561
+#: ../../ORTS.Settings/InputSettings.cs:572
 #, csharp-format
 msgid "{0} and {1} both match {2}"
 msgstr "[{0} áñδ {1} βôƭλ ₥áƭçλ {2} !!!]"
