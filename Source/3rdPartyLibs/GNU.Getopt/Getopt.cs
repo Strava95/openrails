@@ -22,414 +22,412 @@
 /**************************************************************************/
 
 using System;
-using System.Configuration;
 using System.Globalization;
-using System.Reflection;
 using System.Resources;
 using System.Text;
 
 namespace GNU.Getopt
 {
-	/// <summary>
-	/// This is a C# port of a Java port of GNU getopt, a class for parsing
-	/// command line arguments passed to programs. It it based on the C
-	/// getopt() functions in glibc 2.0.6 and should parse options in a 100%
-	/// compatible manner. If it does not, that is a bug. The programmer's
-	/// interface is also very compatible.
-	/// </summary>
-	/// <remarks>
-	/// To use Getopt, create a Getopt object with a args array passed to the
-	/// main method, then call the <see cref="getopt"/> method in a loop. It
-	/// will return an <see cref="int"/> that contains the value of the option
-	/// character parsed from the command line. When there are no more options
-	/// to be parsed, it returns -1.
-	/// <para>
-	/// A command line option can be defined to take an argument. If an option
-	/// has an argument, the value of that argument is stored in an instance
-	/// variable called <c>optarg</c>, which can be accessed using the
-	/// <see cref="Optarg"/> property.
-	/// If an option that requires an argument is found, but there is no
-	/// argument present, then an error message is printed. Normally
-	/// <see cref="getopt"/> returns a '<c>?</c>' in this situation, but that
-	/// can be changed as described below.
-	/// </para>
-	/// <para>
-	/// If an invalid option is encountered, an error message is printed to
-	/// the standard error and <see cref="getopt"/> returns a '<c>?</c>'.
-	/// The value of the invalid option encountered is stored in the instance
-	/// variable optopt which can be retrieved using the <see cref="Optopt"/>
-	/// property.
-	/// To suppress the printing of error messages for this or any other error,
-	/// set the value of the <c>opterr</c> instance variable to false using the
-	/// <see cref="Opterr"/> property.
-	/// </para>
-	/// <para>
-	/// Between calls to <see cref="getopt"/>, the instance variable
-	/// <c>optind</c> is used to keep track of where the object is in the
-	/// parsing process. After all options have been returned, <c>optind</c>
-	/// is the index in argv of the first non-option argument.
-	/// This variable can be accessed with the <see cref="Optind"/> property.
-	/// </para>
-	/// <para>
-	/// Note that this object expects command line options to be passed in the
-	/// traditional Unix manner. That is, proceeded by a '<c>-</c>' character.
-	/// Multiple options can follow the '<c>-</c>'. For example "<c>-abc</c>"
-	/// is equivalent to "<c>-a -b -c</c>". If an option takes a required
-	/// argument, the value of the argument can immediately follow the option
-	/// character or be present in the next argv element. For example,
-	/// "<c>-cfoo</c>" and "<c>-c foo</c>" both represent an option character
-	/// of '<c>c</c>' with an argument of "<c>foo</c>" assuming <c>c</c> takes
-	/// a required argument.
-	/// If an option takes an argument that is not required, then any argument
-	/// must immediately follow the option character in the same argv element.
-	/// For example, if c takes a non-required argument, then "<c>-cfoo</c>"
-	/// represents option character '<c>c</c>' with an argument of "<c>foo</c>"
-	/// while "<c>-c foo</c>" represents the option character '<c>c</c>' with
-	/// no argument, and a first non-option argv element of "<c>foo</c>".
-	/// </para>
-	/// <para>
-	/// The user can stop <see cref="getopt"/> from scanning any further into
-	/// a command line by using the special argument "<c>--</c>" by itself.
-	/// For example:
-	/// "<c>-a -- -d</c>" would return an option character of '<c>a</c>', then
-	/// return -1.
-	/// The "<c>--</c>" is discarded and "<c>-d</c>" is pointed to by
-	/// <c>optind</c> as the first non-option argv element.
-	/// </para>
-	/// <example>
-	/// Here is a basic example of using Getopt:
-	/// <code>
-	/// Getopt g = new Getopt("testprog", args, "ab:c::d");
-	///	
-	///	int c;
-	///	string arg;
-	///	while ((c = g.getopt()) != -1)
-	///	{
-	///		switch(c)
-	///		{
-	///			case 'a':
-	///			case 'd':
-	///				Console.WriteLine("You picked " + (char)c );
-	///				break;
-	///					
-	///			case 'b':
-	///			case 'c':
-	///				arg = g.Optarg;
-	///				Console.WriteLine("You picked " + (char)c + 
-	///					" with an argument of " +
-	///					((arg != null) ? arg : "null") );
-	///				break;
-	///	
-	///			case '?':
-	///				break; // getopt() already printed an error
-	///	
-	///			default:
-	///				Console.WriteLine("getopt() returned " + c);
-	///				break;
-	///		}
-	///	}
-	/// </code>
-	/// In this example, a new Getopt object is created with three params. The
-	/// first param is the program name. This is for printing error messages in
-	/// the form "program: error message". In the C version, this value is
-	/// taken from argv[0], but in .NET the program name is not passed in that
-	/// element, thus the need for this parameter. The second param is the
-	/// argument list that was passed to the main() method. The third param is
-	/// the list of valid options. Each character represents a valid option. If
-	/// the character is followed by a single colon, then that option has a
-	/// required argument. If the character is followed by two colons, then
-	/// that option has an argument that is not required.
-	/// <para>
-	/// Note in this example that the value returned from <see cref="getopt"/>
-	/// is cast to a char prior to printing. This is required in order to make
-	/// the value display correctly as a character instead of an integer.
-	/// </para>
-	/// </example>
-	/// If the first character in the option string is a colon, for example
-	/// "<c>:abc::d</c>", then <see cref="getopt"/> will return a '<c>:</c>'
-	/// instead of a '<c>?</c>' when it encounters an option with a missing
-	/// required argument. This allows the caller to distinguish between
-	/// invalid options and valid options that are simply incomplete.
-	/// <para>
-	/// In the traditional Unix getopt(), -1 is returned when the first
-	/// non-option charcter is encountered. In GNU getopt(), the default
-	/// behavior is to allow options to appear anywhere on the command line.
-	/// The <see cref="getopt"/> method permutes the argument to make it appear
-	/// to the caller that all options were at the beginning of the command
-	/// line, and all non-options were at the end. For example, calling
-	/// <see cref="getopt"/> with command line argv of "<c>-a foo bar -d</c>"
-	/// returns options '<c>a</c>' and '<c>d</c>', then sets optind to point to
-	/// "<c>foo</c>". The program would read the last two argv elements as
-	/// "<c>foo</c>" and "<c>bar</c>", just as if the user had typed
-	/// "<c>-a -d foo bar</c>". 
-	/// </para>
-	/// <para> 
-	/// The user can force <see cref="getopt"/> to stop scanning the command
-	/// line with the special argument "<c>--</c>" by itself. Any elements
-	/// occuring before the "<c>--</c>" are scanned and permuted as normal. Any
-	/// elements after the "<c>--</c>" are returned as is as non-option argv
-	/// elements. For example, "<c>foo -a -- bar -d</c>" would return option
-	/// '<c>a</c>' then -1. <c>optind</c> would point  to "<c>foo</c>",
-	/// "<c>bar</c>" and "<c>-d</c>" as the non-option argv elements. The
-	/// "<c>--</c>" is discarded by <see cref="getopt"/>.
-	/// </para>
-	/// <para>
-	/// There are two ways this default behavior can be modified. The first is
-	/// to specify traditional Unix getopt() behavior (which is also POSIX
-	/// behavior) in which scanning stops when the first non-option argument
-	/// encountered. (Thus "<c>-a foo bar -d</c>" would return '<c>a</c>' as an
-	/// option and have "<c>foo</c>", "<c>bar</c>", and "<c>-d</c>" as
-	/// non-option elements).
-	/// The second is to allow options anywhere, but to return all elements in
-	/// the order they occur on the command line.
-	/// When a non-option element is ecountered, an integer 1 is returned and
-	/// the value of the non-option element is stored in <c>optarg</c> is if
-	/// it were the argument to that option.
-	/// For example, "<c>-a foo -d</c>", returns first '<c>a</c>', then 1 (with
-	/// <c>optarg</c> set to "<c>foo</c>") then '<c>d</c>' then -1.
-	/// When this "return in order" functionality is enabled, the only way to
-	/// stop <c>getopt</c> from scanning all command line elements is to
-	/// use the special "<c>--</c>" string by itself as described above. An
-	/// example is "<c>-a foo -b -- bar</c>", which would return '<c>a</c>',
-	/// then integer 1 with <c>optarg</c> set to "<c>foo</c>", then '<c>b</c>',
-	/// then -1.
-	/// <c>optind</c> would then point to "<c>bar</c>" as the first non-option
-	/// argv element. The "<c>--</c>" is discarded.
-	/// </para>
-	/// <para>
-	/// The POSIX/traditional behavior is enabled by either setting the 
-	/// application setting "Gnu.PosixlyCorrect" or by putting a '<c>+</c>'
-	/// sign as the first character of the option string.
-	/// The difference between the two methods is that setting the
-	/// "Gnu.PosixlyCorrect" application setting also forces certain error
-	/// messages to be displayed in POSIX format.
-	/// To enable the "return in order" functionality, put a '<c>-</c>' as the
-	/// first character of the option string. Note that after determining the
-	/// proper behavior, Getopt strips this leading '<c>+</c>' or '<c>-</c>',
-	/// meaning that a '<c>:</c>' placed as the second character after one of
-	/// those two will still cause <see cref="getopt"/> to return a '<c>:</c>'
-	/// instead of a '<c>?</c>' if a required option argument is missing.
-	/// </para>
-	/// <para>
-	/// In addition to traditional single character options, GNU Getopt also
-	/// supports long options. These are preceeded by a "<c>--</c>" sequence
-	/// and can be as long as desired. Long options provide a more
-	/// user-friendly way of entering command line options.
-	/// For example, in addition to a "<c>-h</c>" for help, a program could
-	/// support also "<c>--help</c>".
-	/// </para>
-	/// <para>
-	/// Like short options, long options can also take a required or
-	/// non-required argument. Required arguments can either be specified by
-	/// placing an equals sign after the option name, then the argument, or by
-	/// putting the argument in the next argv element. For example:
-	/// "<c>--outputdir=foo</c>" and "<c>--outputdir foo</c>" both represent an
-	/// option of "<c>outputdir</c>" with an argument of "<c>foo</c>", assuming
-	/// that outputdir takes a required argument. If a long option takes a
-	/// non-required argument, then the equals sign form must be used to
-	/// specify the argument. In this case, "<c>--outputdir=foo</c>" would
-	/// represent option outputdir with an argument of <c>foo</c> while
-	/// "<c>--outputdir foo</c>" would represent the option outputdir with no
-	/// argument and a first non-option argv element of "<c>foo</c>".
-	/// </para>
-	/// <para>
-	/// Long options can also be specified using a special POSIX argument
-	/// format (one that I highly discourage). This form of entry is enabled by
-	/// placing a "<c>W;</c>" (yes, '<c>W</c>' then a semi-colon) in the valid
-	/// option string.
-	/// This causes getopt to treat the name following the "<c>-W</c>" as the
-	/// name of the long option. For example, "<c>-W outputdir=foo</c>" would
-	/// be equivalent to "<c>--outputdir=foo</c>". The name can immediately
-	/// follow the "<c>-W</c>" like so: "<c>-Woutputdir=foo</c>".
-	/// Option arguments are handled identically to normal long options. If a
-	/// string follows the "<c>-W</c>" that does not represent a
-	/// valid long option, then <see cref="getopt"/> returns '<c>W</c>' and
-	/// the caller must decide what to do. Otherwise <see cref="getopt"/>
-	/// returns a long option value as described below.
-	/// </para>
-	/// <para>
-	/// While long options offer convenience, they can also be tedious to type
-	/// in full. So it is permissible to abbreviate the option name to as few
-	/// characters as required to uniquely identify it. If the name can
-	/// represent multiple long options, then an error message is printed and
-	/// <see cref="getopt"/> returns a '<c>?</c>'.  
-	/// </para>
-	/// <para>
-	/// If an invalid option is specified or a required option argument is 
-	/// missing, <see cref="getopt"/> prints an error and returns a '<c>?</c>'
-	/// or '<c>:</c>' exactly as for short options.
-	/// Note that when an invalid long option is encountered, the <c>optopt</c>
-	/// variable is set to integer 0 and so cannot be used to identify the
-	/// incorrect option the user entered.
-	/// </para>
-	/// <para>
-	/// Long options are defined by <see cref="LongOpt"/> objects. These
-	/// objects are created with a contructor that takes four params: a string
-	/// representing the object name, a integer specifying what arguments the
-	/// option takes (the value is one of the <see cref="Argument"/>
-	/// enumeration: <see cref="Argument.No"/>,
-	/// <see cref="Argument.Required"/>, or <see cref="Argument.Optional"/>),
-	/// a <see cref="System.Text.StringBuilder"/> flag object (described
-	/// below), and an integer value (described below).
-	/// </para>
-	/// <para>
-	/// To enable long option parsing, create an array of
-	/// <see cref="LongOpt"/>'s representing the legal options and pass it to
-	/// the Getopt() constructor.
-	/// WARNING: If all elements of the array are not populated with
-	/// <see cref="LongOpt"/> objects, the <see cref="getopt"/> method will
-	/// throw a <see cref="NullReferenceException"/>.
-	/// </para>
-	/// <para>
-	/// When <see cref="getopt"/> is called and a long option is encountered,
-	/// one of two things can be returned.
-	/// If the flag field in the <see cref="LongOpt"/> object representing the
-	/// long option is non-null, then the integer value field is stored there
-	/// and an integer 0 is returned to the caller.
-	/// The <c>val</c> field can then be retrieved from the <c>flag</c> field.
-	/// Note that since the <c>flag</c> field is a
-	/// <see cref="System.Text.StringBuilder"/>, the appropriate string to
-	/// integer converions must be performed in order to get the actual int
-	/// value stored there.
-	/// If the <c>flag</c> field in the <see cref="LongOpt"/> object is null,
-	/// then the value field of the <see cref="LongOpt"/> is returned.
-	/// This can be the character of a short option.
-	/// This allows an app to have both a long and short option sequence (say,
-	/// "<c>-h</c>" and "<c>--help</c>") that do the exact same thing.
-	/// </para>
-	/// <para>
-	/// With long options, there is an alternative method of determining which
-	/// option was selected. The property Longind will return the index in the
-	/// long option array (NOT argv) of the long option found. So if multiple
-	/// long options are configured to return the same value, the application
-	/// can use <see cref="Longind"/> to distinguish between them. 
-	/// </para>
-	/// <example>
-	/// Here is an expanded Getopt example using long options and various
-	/// techniques described above:
-	/// <code>
-	/// int c;
-	/// string arg;
-	/// LongOpt[] longopts = new LongOpt[3];
-	/// 
-	/// StringBuffer sb = new StringBuffer();
-	/// longopts[0] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
-	/// longopts[1] = new LongOpt("outputdir", LongOpt.REQUIRED_ARGUMENT, sb, 'o'); 
-	/// longopts[2] = new LongOpt("maximum", LongOpt.OPTIONAL_ARGUMENT, null, 2);
-	/// 
-	/// Getopt g = new Getopt("testprog", argv, "-:bc::d:hW;", longopts);
-	/// g.Opterr = false; // We'll do our own error handling
-	/// 
-	/// while ((c = g.getopt()) != -1)
-	///		switch (c)
-	///		{
-	///			case 0:
-	///				arg = g.getOptarg();
-	///				Console.WriteLine("Got long option with value '" +
-	///					(char)(new Integer(sb.toString())).intValue()
-	///					+ "' with argument " +
-	///					((arg != null) ? arg : "null"));
-	///				break;
-	///	
-	///			case 1:
-	///				Console.WriteLine("I see you have return in order set and that " +
-	///					"a non-option argv element was just found " +
-	///					"with the value '" + g.Optarg + "'");
-	///				break;
-	/// 
-	///			case 2:
-	///				arg = g.getOptarg();
-	///				Console.WriteLine("I know this, but pretend I didn't");
-	///				Console.WriteLine("We picked option " +
-	///					longopts[g.Longind].getName() +
-	///					" with value " + 
-	///					((arg != null) ? arg : "null"));
-	///				break;
-	///	
-	///			case 'b':
-	///				Console.WriteLine("You picked plain old option " + (char)c);
-	///				break;
-	///	
-	///			case 'c':
-	///			case 'd':
-	///				arg = g.getOptarg();
-	///				Console.WriteLine("You picked option '" + (char)c + 
-	///					"' with argument " +
-	///					((arg != null) ? arg : "null"));
-	///				break;
-	///	
-	///			case 'h':
-	///				Console.WriteLine("I see you asked for help");
-	///				break;
-	///	
-	///			case 'W':
-	///				Console.WriteLine("Hmmm. You tried a -W with an incorrect long " +
-	///					"option name");
-	///				break;
-	///	
-	///			case ':':
-	///				Console.WriteLine("Doh! You need an argument for option " +
-	///					(char)g.getOptopt());
-	///				break;
-	///	
-	///			case '?':
-	///				Console.WriteLine("The option '" + (char)g.getOptopt() + 
-	///					"' is not valid");
-	///				break;
-	///	
-	///			default:
-	///				Console.WriteLine("getopt() returned " + c);
-	///				break;
-	///		}
-	///	
-	/// for (int i = g.getOptind(); i &lt; argv.length ; i++)
-	///		Console.WriteLine("Non option argv element: " + argv[i] );
-	/// </code>
-	/// <para>
-	/// The set of single-character options is often in one-to-one
-	/// correspondence with the set of long options. The
-	/// <see cref="digest" /> method is helpful in such cases:
-	/// <code>
-	/// LongOpt [] longOpts =
-	///   new LongOpt [7] {
-  ///     new LongOpt("verbose", Argument.No, null, 'v'),
-  ///     new LongOpt("version", Argument.No, null, 'r'),
-  ///     new LongOpt("input", Argument.Required, null, 'i'),
-  ///     new LongOpt("output", Argument.Required, null, 'o'),
-  ///     new LongOpt("help", Argument.No, null, 'h')};
-  /// Getopt getopt =
-  ///   new Getopt("filter", args, Getopt.digest(longOpts), longOpts);
-	/// </code>
-	/// </para>
-	/// <para>
-	/// There is an alternative form of the constructor used for long options
-	/// above. This takes a trailing boolean flag. If set to false, Getopt
-	/// performs identically to the example, but if the boolean flag is true
-	/// then long options are allowed to start with a single '<c>-</c>' instead
-	/// of "<c>--</c>". If the first character of the option is a valid short
-	/// option character, then the option is treated as if it were the short
-	/// option. Otherwise it behaves as if the option is a long option.
-	/// Note that the name given to this option - <c>longOnly</c> - is very
-	/// counter-intuitive.
-	/// It does not cause only long options to be parsed but instead enables
-	/// the behavior described above.
-	/// </para>
-	/// </example>
-	/// <para> 
-	/// Note that the functionality and variable names used are driven from the
-	/// C lib version as this object is a port of the C code, not a new
-	/// implementation. This should aid in porting existing C/C++ code, as well
-	/// as helping programmers familiar with the glibc version to adapt to the
-	/// C#.NET version.
-	/// </para>
-	/// </remarks>
-	/// <author>Roland McGrath (roland@gnu.ai.mit.edu)</author>
-	/// <author>Ulrich Drepper (drepper@cygnus.com)</author>
-	/// <author>Aaron M. Renn (arenn@urbanophile.com)</author>
-	/// <author>Klaus Prückl (klaus.prueckl@aon.at)</author>
-	/// <author>Sean M. Foy (sean.foy@gmail.com)</author>
-	/// <seealso cref="LongOpt">LongOpt</seealso>
-	public class Getopt
+    /// <summary>
+    /// This is a C# port of a Java port of GNU getopt, a class for parsing
+    /// command line arguments passed to programs. It it based on the C
+    /// getopt() functions in glibc 2.0.6 and should parse options in a 100%
+    /// compatible manner. If it does not, that is a bug. The programmer's
+    /// interface is also very compatible.
+    /// </summary>
+    /// <remarks>
+    /// To use Getopt, create a Getopt object with a args array passed to the
+    /// main method, then call the <see cref="getopt"/> method in a loop. It
+    /// will return an <see cref="int"/> that contains the value of the option
+    /// character parsed from the command line. When there are no more options
+    /// to be parsed, it returns -1.
+    /// <para>
+    /// A command line option can be defined to take an argument. If an option
+    /// has an argument, the value of that argument is stored in an instance
+    /// variable called <c>optarg</c>, which can be accessed using the
+    /// <see cref="Optarg"/> property.
+    /// If an option that requires an argument is found, but there is no
+    /// argument present, then an error message is printed. Normally
+    /// <see cref="getopt"/> returns a '<c>?</c>' in this situation, but that
+    /// can be changed as described below.
+    /// </para>
+    /// <para>
+    /// If an invalid option is encountered, an error message is printed to
+    /// the standard error and <see cref="getopt"/> returns a '<c>?</c>'.
+    /// The value of the invalid option encountered is stored in the instance
+    /// variable optopt which can be retrieved using the <see cref="Optopt"/>
+    /// property.
+    /// To suppress the printing of error messages for this or any other error,
+    /// set the value of the <c>opterr</c> instance variable to false using the
+    /// <see cref="Opterr"/> property.
+    /// </para>
+    /// <para>
+    /// Between calls to <see cref="getopt"/>, the instance variable
+    /// <c>optind</c> is used to keep track of where the object is in the
+    /// parsing process. After all options have been returned, <c>optind</c>
+    /// is the index in argv of the first non-option argument.
+    /// This variable can be accessed with the <see cref="Optind"/> property.
+    /// </para>
+    /// <para>
+    /// Note that this object expects command line options to be passed in the
+    /// traditional Unix manner. That is, proceeded by a '<c>-</c>' character.
+    /// Multiple options can follow the '<c>-</c>'. For example "<c>-abc</c>"
+    /// is equivalent to "<c>-a -b -c</c>". If an option takes a required
+    /// argument, the value of the argument can immediately follow the option
+    /// character or be present in the next argv element. For example,
+    /// "<c>-cfoo</c>" and "<c>-c foo</c>" both represent an option character
+    /// of '<c>c</c>' with an argument of "<c>foo</c>" assuming <c>c</c> takes
+    /// a required argument.
+    /// If an option takes an argument that is not required, then any argument
+    /// must immediately follow the option character in the same argv element.
+    /// For example, if c takes a non-required argument, then "<c>-cfoo</c>"
+    /// represents option character '<c>c</c>' with an argument of "<c>foo</c>"
+    /// while "<c>-c foo</c>" represents the option character '<c>c</c>' with
+    /// no argument, and a first non-option argv element of "<c>foo</c>".
+    /// </para>
+    /// <para>
+    /// The user can stop <see cref="getopt"/> from scanning any further into
+    /// a command line by using the special argument "<c>--</c>" by itself.
+    /// For example:
+    /// "<c>-a -- -d</c>" would return an option character of '<c>a</c>', then
+    /// return -1.
+    /// The "<c>--</c>" is discarded and "<c>-d</c>" is pointed to by
+    /// <c>optind</c> as the first non-option argv element.
+    /// </para>
+    /// <example>
+    /// Here is a basic example of using Getopt:
+    /// <code>
+    /// Getopt g = new Getopt("testprog", args, "ab:c::d");
+    ///	
+    ///	int c;
+    ///	string arg;
+    ///	while ((c = g.getopt()) != -1)
+    ///	{
+    ///		switch(c)
+    ///		{
+    ///			case 'a':
+    ///			case 'd':
+    ///				Console.WriteLine("You picked " + (char)c );
+    ///				break;
+    ///					
+    ///			case 'b':
+    ///			case 'c':
+    ///				arg = g.Optarg;
+    ///				Console.WriteLine("You picked " + (char)c + 
+    ///					" with an argument of " +
+    ///					((arg != null) ? arg : "null") );
+    ///				break;
+    ///	
+    ///			case '?':
+    ///				break; // getopt() already printed an error
+    ///	
+    ///			default:
+    ///				Console.WriteLine("getopt() returned " + c);
+    ///				break;
+    ///		}
+    ///	}
+    /// </code>
+    /// In this example, a new Getopt object is created with three params. The
+    /// first param is the program name. This is for printing error messages in
+    /// the form "program: error message". In the C version, this value is
+    /// taken from argv[0], but in .NET the program name is not passed in that
+    /// element, thus the need for this parameter. The second param is the
+    /// argument list that was passed to the main() method. The third param is
+    /// the list of valid options. Each character represents a valid option. If
+    /// the character is followed by a single colon, then that option has a
+    /// required argument. If the character is followed by two colons, then
+    /// that option has an argument that is not required.
+    /// <para>
+    /// Note in this example that the value returned from <see cref="getopt"/>
+    /// is cast to a char prior to printing. This is required in order to make
+    /// the value display correctly as a character instead of an integer.
+    /// </para>
+    /// </example>
+    /// If the first character in the option string is a colon, for example
+    /// "<c>:abc::d</c>", then <see cref="getopt"/> will return a '<c>:</c>'
+    /// instead of a '<c>?</c>' when it encounters an option with a missing
+    /// required argument. This allows the caller to distinguish between
+    /// invalid options and valid options that are simply incomplete.
+    /// <para>
+    /// In the traditional Unix getopt(), -1 is returned when the first
+    /// non-option charcter is encountered. In GNU getopt(), the default
+    /// behavior is to allow options to appear anywhere on the command line.
+    /// The <see cref="getopt"/> method permutes the argument to make it appear
+    /// to the caller that all options were at the beginning of the command
+    /// line, and all non-options were at the end. For example, calling
+    /// <see cref="getopt"/> with command line argv of "<c>-a foo bar -d</c>"
+    /// returns options '<c>a</c>' and '<c>d</c>', then sets optind to point to
+    /// "<c>foo</c>". The program would read the last two argv elements as
+    /// "<c>foo</c>" and "<c>bar</c>", just as if the user had typed
+    /// "<c>-a -d foo bar</c>". 
+    /// </para>
+    /// <para> 
+    /// The user can force <see cref="getopt"/> to stop scanning the command
+    /// line with the special argument "<c>--</c>" by itself. Any elements
+    /// occuring before the "<c>--</c>" are scanned and permuted as normal. Any
+    /// elements after the "<c>--</c>" are returned as is as non-option argv
+    /// elements. For example, "<c>foo -a -- bar -d</c>" would return option
+    /// '<c>a</c>' then -1. <c>optind</c> would point  to "<c>foo</c>",
+    /// "<c>bar</c>" and "<c>-d</c>" as the non-option argv elements. The
+    /// "<c>--</c>" is discarded by <see cref="getopt"/>.
+    /// </para>
+    /// <para>
+    /// There are two ways this default behavior can be modified. The first is
+    /// to specify traditional Unix getopt() behavior (which is also POSIX
+    /// behavior) in which scanning stops when the first non-option argument
+    /// encountered. (Thus "<c>-a foo bar -d</c>" would return '<c>a</c>' as an
+    /// option and have "<c>foo</c>", "<c>bar</c>", and "<c>-d</c>" as
+    /// non-option elements).
+    /// The second is to allow options anywhere, but to return all elements in
+    /// the order they occur on the command line.
+    /// When a non-option element is ecountered, an integer 1 is returned and
+    /// the value of the non-option element is stored in <c>optarg</c> is if
+    /// it were the argument to that option.
+    /// For example, "<c>-a foo -d</c>", returns first '<c>a</c>', then 1 (with
+    /// <c>optarg</c> set to "<c>foo</c>") then '<c>d</c>' then -1.
+    /// When this "return in order" functionality is enabled, the only way to
+    /// stop <c>getopt</c> from scanning all command line elements is to
+    /// use the special "<c>--</c>" string by itself as described above. An
+    /// example is "<c>-a foo -b -- bar</c>", which would return '<c>a</c>',
+    /// then integer 1 with <c>optarg</c> set to "<c>foo</c>", then '<c>b</c>',
+    /// then -1.
+    /// <c>optind</c> would then point to "<c>bar</c>" as the first non-option
+    /// argv element. The "<c>--</c>" is discarded.
+    /// </para>
+    /// <para>
+    /// The POSIX/traditional behavior is enabled by either setting the 
+    /// application setting "Gnu.PosixlyCorrect" or by putting a '<c>+</c>'
+    /// sign as the first character of the option string.
+    /// The difference between the two methods is that setting the
+    /// "Gnu.PosixlyCorrect" application setting also forces certain error
+    /// messages to be displayed in POSIX format.
+    /// To enable the "return in order" functionality, put a '<c>-</c>' as the
+    /// first character of the option string. Note that after determining the
+    /// proper behavior, Getopt strips this leading '<c>+</c>' or '<c>-</c>',
+    /// meaning that a '<c>:</c>' placed as the second character after one of
+    /// those two will still cause <see cref="getopt"/> to return a '<c>:</c>'
+    /// instead of a '<c>?</c>' if a required option argument is missing.
+    /// </para>
+    /// <para>
+    /// In addition to traditional single character options, GNU Getopt also
+    /// supports long options. These are preceeded by a "<c>--</c>" sequence
+    /// and can be as long as desired. Long options provide a more
+    /// user-friendly way of entering command line options.
+    /// For example, in addition to a "<c>-h</c>" for help, a program could
+    /// support also "<c>--help</c>".
+    /// </para>
+    /// <para>
+    /// Like short options, long options can also take a required or
+    /// non-required argument. Required arguments can either be specified by
+    /// placing an equals sign after the option name, then the argument, or by
+    /// putting the argument in the next argv element. For example:
+    /// "<c>--outputdir=foo</c>" and "<c>--outputdir foo</c>" both represent an
+    /// option of "<c>outputdir</c>" with an argument of "<c>foo</c>", assuming
+    /// that outputdir takes a required argument. If a long option takes a
+    /// non-required argument, then the equals sign form must be used to
+    /// specify the argument. In this case, "<c>--outputdir=foo</c>" would
+    /// represent option outputdir with an argument of <c>foo</c> while
+    /// "<c>--outputdir foo</c>" would represent the option outputdir with no
+    /// argument and a first non-option argv element of "<c>foo</c>".
+    /// </para>
+    /// <para>
+    /// Long options can also be specified using a special POSIX argument
+    /// format (one that I highly discourage). This form of entry is enabled by
+    /// placing a "<c>W;</c>" (yes, '<c>W</c>' then a semi-colon) in the valid
+    /// option string.
+    /// This causes getopt to treat the name following the "<c>-W</c>" as the
+    /// name of the long option. For example, "<c>-W outputdir=foo</c>" would
+    /// be equivalent to "<c>--outputdir=foo</c>". The name can immediately
+    /// follow the "<c>-W</c>" like so: "<c>-Woutputdir=foo</c>".
+    /// Option arguments are handled identically to normal long options. If a
+    /// string follows the "<c>-W</c>" that does not represent a
+    /// valid long option, then <see cref="getopt"/> returns '<c>W</c>' and
+    /// the caller must decide what to do. Otherwise <see cref="getopt"/>
+    /// returns a long option value as described below.
+    /// </para>
+    /// <para>
+    /// While long options offer convenience, they can also be tedious to type
+    /// in full. So it is permissible to abbreviate the option name to as few
+    /// characters as required to uniquely identify it. If the name can
+    /// represent multiple long options, then an error message is printed and
+    /// <see cref="getopt"/> returns a '<c>?</c>'.  
+    /// </para>
+    /// <para>
+    /// If an invalid option is specified or a required option argument is 
+    /// missing, <see cref="getopt"/> prints an error and returns a '<c>?</c>'
+    /// or '<c>:</c>' exactly as for short options.
+    /// Note that when an invalid long option is encountered, the <c>optopt</c>
+    /// variable is set to integer 0 and so cannot be used to identify the
+    /// incorrect option the user entered.
+    /// </para>
+    /// <para>
+    /// Long options are defined by <see cref="LongOpt"/> objects. These
+    /// objects are created with a contructor that takes four params: a string
+    /// representing the object name, a integer specifying what arguments the
+    /// option takes (the value is one of the <see cref="Argument"/>
+    /// enumeration: <see cref="Argument.No"/>,
+    /// <see cref="Argument.Required"/>, or <see cref="Argument.Optional"/>),
+    /// a <see cref="System.Text.StringBuilder"/> flag object (described
+    /// below), and an integer value (described below).
+    /// </para>
+    /// <para>
+    /// To enable long option parsing, create an array of
+    /// <see cref="LongOpt"/>'s representing the legal options and pass it to
+    /// the Getopt() constructor.
+    /// WARNING: If all elements of the array are not populated with
+    /// <see cref="LongOpt"/> objects, the <see cref="getopt"/> method will
+    /// throw a <see cref="NullReferenceException"/>.
+    /// </para>
+    /// <para>
+    /// When <see cref="getopt"/> is called and a long option is encountered,
+    /// one of two things can be returned.
+    /// If the flag field in the <see cref="LongOpt"/> object representing the
+    /// long option is non-null, then the integer value field is stored there
+    /// and an integer 0 is returned to the caller.
+    /// The <c>val</c> field can then be retrieved from the <c>flag</c> field.
+    /// Note that since the <c>flag</c> field is a
+    /// <see cref="System.Text.StringBuilder"/>, the appropriate string to
+    /// integer converions must be performed in order to get the actual int
+    /// value stored there.
+    /// If the <c>flag</c> field in the <see cref="LongOpt"/> object is null,
+    /// then the value field of the <see cref="LongOpt"/> is returned.
+    /// This can be the character of a short option.
+    /// This allows an app to have both a long and short option sequence (say,
+    /// "<c>-h</c>" and "<c>--help</c>") that do the exact same thing.
+    /// </para>
+    /// <para>
+    /// With long options, there is an alternative method of determining which
+    /// option was selected. The property Longind will return the index in the
+    /// long option array (NOT argv) of the long option found. So if multiple
+    /// long options are configured to return the same value, the application
+    /// can use <see cref="Longind"/> to distinguish between them. 
+    /// </para>
+    /// <example>
+    /// Here is an expanded Getopt example using long options and various
+    /// techniques described above:
+    /// <code>
+    /// int c;
+    /// string arg;
+    /// LongOpt[] longopts = new LongOpt[3];
+    /// 
+    /// StringBuffer sb = new StringBuffer();
+    /// longopts[0] = new LongOpt("help", LongOpt.NO_ARGUMENT, null, 'h');
+    /// longopts[1] = new LongOpt("outputdir", LongOpt.REQUIRED_ARGUMENT, sb, 'o'); 
+    /// longopts[2] = new LongOpt("maximum", LongOpt.OPTIONAL_ARGUMENT, null, 2);
+    /// 
+    /// Getopt g = new Getopt("testprog", argv, "-:bc::d:hW;", longopts);
+    /// g.Opterr = false; // We'll do our own error handling
+    /// 
+    /// while ((c = g.getopt()) != -1)
+    ///		switch (c)
+    ///		{
+    ///			case 0:
+    ///				arg = g.getOptarg();
+    ///				Console.WriteLine("Got long option with value '" +
+    ///					(char)(new Integer(sb.toString())).intValue()
+    ///					+ "' with argument " +
+    ///					((arg != null) ? arg : "null"));
+    ///				break;
+    ///	
+    ///			case 1:
+    ///				Console.WriteLine("I see you have return in order set and that " +
+    ///					"a non-option argv element was just found " +
+    ///					"with the value '" + g.Optarg + "'");
+    ///				break;
+    /// 
+    ///			case 2:
+    ///				arg = g.getOptarg();
+    ///				Console.WriteLine("I know this, but pretend I didn't");
+    ///				Console.WriteLine("We picked option " +
+    ///					longopts[g.Longind].getName() +
+    ///					" with value " + 
+    ///					((arg != null) ? arg : "null"));
+    ///				break;
+    ///	
+    ///			case 'b':
+    ///				Console.WriteLine("You picked plain old option " + (char)c);
+    ///				break;
+    ///	
+    ///			case 'c':
+    ///			case 'd':
+    ///				arg = g.getOptarg();
+    ///				Console.WriteLine("You picked option '" + (char)c + 
+    ///					"' with argument " +
+    ///					((arg != null) ? arg : "null"));
+    ///				break;
+    ///	
+    ///			case 'h':
+    ///				Console.WriteLine("I see you asked for help");
+    ///				break;
+    ///	
+    ///			case 'W':
+    ///				Console.WriteLine("Hmmm. You tried a -W with an incorrect long " +
+    ///					"option name");
+    ///				break;
+    ///	
+    ///			case ':':
+    ///				Console.WriteLine("Doh! You need an argument for option " +
+    ///					(char)g.getOptopt());
+    ///				break;
+    ///	
+    ///			case '?':
+    ///				Console.WriteLine("The option '" + (char)g.getOptopt() + 
+    ///					"' is not valid");
+    ///				break;
+    ///	
+    ///			default:
+    ///				Console.WriteLine("getopt() returned " + c);
+    ///				break;
+    ///		}
+    ///	
+    /// for (int i = g.getOptind(); i &lt; argv.length ; i++)
+    ///		Console.WriteLine("Non option argv element: " + argv[i] );
+    /// </code>
+    /// <para>
+    /// The set of single-character options is often in one-to-one
+    /// correspondence with the set of long options. The
+    /// <see cref="digest" /> method is helpful in such cases:
+    /// <code>
+    /// LongOpt [] longOpts =
+    ///   new LongOpt [7] {
+    ///     new LongOpt("verbose", Argument.No, null, 'v'),
+    ///     new LongOpt("version", Argument.No, null, 'r'),
+    ///     new LongOpt("input", Argument.Required, null, 'i'),
+    ///     new LongOpt("output", Argument.Required, null, 'o'),
+    ///     new LongOpt("help", Argument.No, null, 'h')};
+    /// Getopt getopt =
+    ///   new Getopt("filter", args, Getopt.digest(longOpts), longOpts);
+    /// </code>
+    /// </para>
+    /// <para>
+    /// There is an alternative form of the constructor used for long options
+    /// above. This takes a trailing boolean flag. If set to false, Getopt
+    /// performs identically to the example, but if the boolean flag is true
+    /// then long options are allowed to start with a single '<c>-</c>' instead
+    /// of "<c>--</c>". If the first character of the option is a valid short
+    /// option character, then the option is treated as if it were the short
+    /// option. Otherwise it behaves as if the option is a long option.
+    /// Note that the name given to this option - <c>longOnly</c> - is very
+    /// counter-intuitive.
+    /// It does not cause only long options to be parsed but instead enables
+    /// the behavior described above.
+    /// </para>
+    /// </example>
+    /// <para> 
+    /// Note that the functionality and variable names used are driven from the
+    /// C lib version as this object is a port of the C code, not a new
+    /// implementation. This should aid in porting existing C/C++ code, as well
+    /// as helping programmers familiar with the glibc version to adapt to the
+    /// C#.NET version.
+    /// </para>
+    /// </remarks>
+    /// <author>Roland McGrath (roland@gnu.ai.mit.edu)</author>
+    /// <author>Ulrich Drepper (drepper@cygnus.com)</author>
+    /// <author>Aaron M. Renn (arenn@urbanophile.com)</author>
+    /// <author>Klaus Prückl (klaus.prueckl@aon.at)</author>
+    /// <author>Sean M. Foy (sean.foy@gmail.com)</author>
+    /// <seealso cref="LongOpt">LongOpt</seealso>
+    public class Getopt
 	{
 		/// <summary>
 		/// Describe how to deal with options that follow non-option
@@ -701,25 +699,6 @@ namespace GNU.Getopt
 			this.optstring = optstring;
 			this.longOptions = longOptions;
 			this.longOnly = longOnly;
-			
-			// Check for application setting "Gnu.PosixlyCorrect" to determine
-			// whether to strictly follow the POSIX standard. This replaces the
-			// "POSIXLY_CORRECT" environment variable in the C version
-			try 
-			{
-				if((bool) new AppSettingsReader().GetValue(
-					"Gnu.PosixlyCorrect", typeof(bool))) 
-				{
-					this.posixlyCorrect = true;
-					this.cultureInfo = new CultureInfo("en-US");
-				}
-				else
-					this.posixlyCorrect = false;
-			}
-			catch(Exception) 
-			{
-				this.posixlyCorrect = false;
-			}
 			
 			// Determine how to handle the ordering of options and non-options
 			if (optstring[0] == '-')

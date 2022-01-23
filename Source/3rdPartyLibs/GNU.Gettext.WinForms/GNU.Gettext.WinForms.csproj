@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <OutputType>Library</OutputType>
+    <UseWindowsForms>true</UseWindowsForms>
+    <IsPublishable>False</IsPublishable>
+    <Description>GNU.Gettext.WinForms (forked from arbinada/gettext-dotnet)</Description>
+    <PackageLicenseExpression>LGPL-2.1-or-later</PackageLicenseExpression>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="LocalizableObjectAdapter.cs" />
+    <Compile Include="Localizer.cs" />
+    <Compile Include="ObjectPropertiesStore.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GNU.Gettext\GNU.Gettext.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.4.355802">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+</Project>

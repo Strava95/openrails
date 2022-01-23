@@ -29,8 +29,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ORTS.Updater", "ORTS.Update
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ActivityEditor", "Contrib\ActivityEditor\ActivityEditor\ActivityEditor.csproj", "{306C904F-BE41-4B39-A0C4-51068B7F205E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AEWizard", "Contrib\ActivityEditor\AEWizard\AEWizard.csproj", "{79EFFB38-252C-4B06-BD4E-7C7FDE0A20DC}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ContentManager", "Contrib\ContentManager\ContentManager.csproj", "{E3E04859-2734-46EA-99B6-8A9721E85D3F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibAE", "Contrib\ActivityEditor\LibAE\LibAE.csproj", "{B79691A7-BF8C-40B4-ADE0-5F30F2730414}"
@@ -54,6 +52,16 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ContentChecker", "ContentChecker\ContentChecker.csproj", "{316A8CAC-8BD4-4A64-A384-4A3C28C5D3D8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimulatorTester", "Contrib\SimulatorTester\SimulatorTester.csproj", "{792B01A1-5C43-4FFA-A4C0-BBDC95A4A178}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GNU.Getopt", "3rdPartyLibs\GNU.Getopt\GNU.Getopt.csproj", "{1BA98AEE-5E5F-4449-9775-0C77E0608570}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GNU.Gettext", "3rdPartyLibs\GNU.Gettext\GNU.Gettext.csproj", "{A46D291C-B40D-4A02-9A73-A35CC0C73B6F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GNU.Gettext.Msgfmt", "3rdPartyLibs\GNU.Gettext.Msgfmt\GNU.Gettext.Msgfmt.csproj", "{B7F020DC-FAD6-4239-88AC-97CA693E6293}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GNU.Gettext.Xgettext", "3rdPartyLibs\GNU.Gettext.Xgettext\GNU.Gettext.Xgettext.csproj", "{95B826D6-4727-4FAA-A2BE-6C5CB157C21F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GNU.Gettext.WinForms", "3rdPartyLibs\GNU.Gettext.WinForms\GNU.Gettext.WinForms.csproj", "{A458C869-B3C4-4130-8D3F-00F44548DD5C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "script", "F:\MSTS\TRAINS\TRAINSET\common.script\script.csproj", "{7C6AF69C-43C6-49C9-9C4E-1538017C4B98}"
 EndProject
@@ -117,10 +125,6 @@ Global
 		{306C904F-BE41-4B39-A0C4-51068B7F205E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{306C904F-BE41-4B39-A0C4-51068B7F205E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{306C904F-BE41-4B39-A0C4-51068B7F205E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{79EFFB38-252C-4B06-BD4E-7C7FDE0A20DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{79EFFB38-252C-4B06-BD4E-7C7FDE0A20DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{79EFFB38-252C-4B06-BD4E-7C7FDE0A20DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{79EFFB38-252C-4B06-BD4E-7C7FDE0A20DC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E3E04859-2734-46EA-99B6-8A9721E85D3F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E3E04859-2734-46EA-99B6-8A9721E85D3F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E3E04859-2734-46EA-99B6-8A9721E85D3F}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -169,6 +173,26 @@ Global
 		{792B01A1-5C43-4FFA-A4C0-BBDC95A4A178}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{792B01A1-5C43-4FFA-A4C0-BBDC95A4A178}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{792B01A1-5C43-4FFA-A4C0-BBDC95A4A178}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1BA98AEE-5E5F-4449-9775-0C77E0608570}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1BA98AEE-5E5F-4449-9775-0C77E0608570}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1BA98AEE-5E5F-4449-9775-0C77E0608570}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1BA98AEE-5E5F-4449-9775-0C77E0608570}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A46D291C-B40D-4A02-9A73-A35CC0C73B6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A46D291C-B40D-4A02-9A73-A35CC0C73B6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A46D291C-B40D-4A02-9A73-A35CC0C73B6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A46D291C-B40D-4A02-9A73-A35CC0C73B6F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B7F020DC-FAD6-4239-88AC-97CA693E6293}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7F020DC-FAD6-4239-88AC-97CA693E6293}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B7F020DC-FAD6-4239-88AC-97CA693E6293}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B7F020DC-FAD6-4239-88AC-97CA693E6293}.Release|Any CPU.Build.0 = Release|Any CPU
+		{95B826D6-4727-4FAA-A2BE-6C5CB157C21F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95B826D6-4727-4FAA-A2BE-6C5CB157C21F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95B826D6-4727-4FAA-A2BE-6C5CB157C21F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95B826D6-4727-4FAA-A2BE-6C5CB157C21F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A458C869-B3C4-4130-8D3F-00F44548DD5C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A458C869-B3C4-4130-8D3F-00F44548DD5C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A458C869-B3C4-4130-8D3F-00F44548DD5C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A458C869-B3C4-4130-8D3F-00F44548DD5C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7C6AF69C-43C6-49C9-9C4E-1538017C4B98}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7C6AF69C-43C6-49C9-9C4E-1538017C4B98}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{59623221-2D39-4F99-B08D-4C5D05041F68}.Debug|Any CPU.ActiveCfg = Debug|Any CPU

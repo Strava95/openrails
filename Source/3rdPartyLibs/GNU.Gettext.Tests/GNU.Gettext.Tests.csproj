@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <StartupObject>GNU.Gettext.Test.MainClass</StartupObject>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GNU.Gettext\GNU.Gettext.csproj" />
+    <ProjectReference Include="..\GNU.Gettext.Msgfmt\GNU.Gettext.Msgfmt.csproj" />
+    <ProjectReference Include="..\GNU.Getopt\GNU.Getopt.csproj" />
+    <ProjectReference Include="..\GNU.Gettext.Xgettext\GNU.Gettext.Xgettext.csproj" />
+    <ProjectReference Include="..\GNU.Gettext.WinForms\GNU.Gettext.WinForms.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Data\Test01.po">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Data\UtilsTest.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Data\XgettextTest.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="NUnitTestAdapter.WithFramework" Version="2.0.0" />
+    <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.3.261602">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+</Project>

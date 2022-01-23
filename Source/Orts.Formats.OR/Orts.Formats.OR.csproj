@@ -15,12 +15,7 @@
     <DocumentationFile>..\..\Program\Orts.Formats.OR.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="GNU.Gettext, Version=1.1.5151.39896, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\3rdPartyLibs\GNU.Gettext.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
+    <ProjectReference Include="..\3rdPartyLibs\GNU.Gettext\GNU.Gettext.csproj" />
     <ProjectReference Include="..\ORTS.Common\ORTS.Common.csproj" />
     <ProjectReference Include="..\ORTS.Content\ORTS.Content.csproj" />
     <ProjectReference Include="..\Orts.Formats.Msts\Orts.Formats.Msts.csproj" />

@@ -1,0 +1,634 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2022-01-24 03:36:37+0100\n"
+"PO-Revision-Date: 2022-01-24 05:31+0100\n"
+"Last-Translator: GNIEWEK Cédric <gniewek.cedric@free.fr>\n"
+"Language-Team: \n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Poedit 3.0.1\n"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/AboutActEdit.cs:17
+#: ../../Contrib/ActivityEditor/ActivityEditor/AboutActEdit.Designer.cs:89
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/ActEditor.Designer.cs:552
+#: ../../Contrib/ActivityEditor/ActivityEditor/Preference/Options.Designer.cs:287
+msgid "Activity Editor"
+msgstr "Editor de atividade"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/AboutActEdit.cs:18
+msgid "0.1"
+msgstr "0.1"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/AboutActEdit.cs:19
+#: ../../Contrib/ActivityEditor/ActivityEditor/AboutActEdit.Designer.cs:136
+msgid "Copyright by Open Rails project"
+msgstr "Direitos reservados do projeto Open Rails Brasil"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/AboutActEdit.cs:20
+msgid "OR"
+msgstr "ORBR"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/AboutActEdit.cs:21
+#: ../../Contrib/ActivityEditor/ActivityEditor/AboutActEdit.Designer.cs:125
+msgid ""
+"Tool intended for the creation of activities for the Open simulator Rail."
+msgstr ""
+"Ferramenta destinada à criação de atividades para o simulador Open Rails."
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/AboutActEdit.Designer.cs:111
+msgid "&OK"
+msgstr "&OK"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/AboutActEdit.Designer.cs:148
+msgid "Version 0.1"
+msgstr "Versão 0.1"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/AboutActEdit.Designer.cs:166
+msgid "AboutActEdit"
+msgstr "AboutActEdit"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/ActionProperties/ControlStartProperties.Designer.cs:47
+#: ../../Contrib/ActivityEditor/ActivityEditor/ActionProperties/ControlStoppedProperties.Designer.cs:41
+#: ../../Contrib/ActivityEditor/ActivityEditor/ActionProperties/HornProperties.Designer.cs:44
+#: ../../Contrib/ActivityEditor/ActivityEditor/Activity/StartActivity.Designer.cs:162
+#: ../../Contrib/ActivityEditor/ActivityEditor/Activity/StartActivity.Designer.cs:390
+#: ../../Contrib/ActivityEditor/ActivityEditor/Activity/WaitActivity.Designer.cs:56
+#: ../../Contrib/ActivityEditor/ActivityEditor/Preference/Options.Designer.cs:519
+#: ../../Contrib/ActivityEditor/ActivityEditor/Route%20Metadata/BufferInterface.Designer.cs:110
+#: ../../Contrib/ActivityEditor/ActivityEditor/Route%20Metadata/ConnectorInterface.Designer.cs:48
+#: ../../Contrib/ActivityEditor/ActivityEditor/Route%20Metadata/TrackSegmentInterface.Designer.cs:42
+msgid "OK"
+msgstr "OK"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/ActionProperties/ControlStartProperties.Designer.cs:74
+msgid "ActionDuration"
+msgstr "Duração da ação"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/ActionProperties/ControlStartProperties.Designer.cs:85
+msgid "Pre-delay :"
+msgstr "Pre-delay :"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/ActionProperties/ControlStartProperties.Designer.cs:100
+msgid "ControlStartProperties"
+msgstr "Controlar propriedades de início"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/ActionProperties/ControlStartProperties.Designer.cs:75
+msgid ""
+"ActionDuration:\r\n"
+"How long does the action takes.  With a minimum of 10sec and a maximum of "
+"25sec.\r\n"
+msgstr ""
+"Duração de ação:\r\n"
+"Quanto tempo a ação leva. Com um mínimo de 10 segundos e um máximo de 25 "
+"segundos.\r\n"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/ActionProperties/ControlStartProperties.Designer.cs:86
+msgid ""
+"Pre-Delay:\r\n"
+"Define the advance period for this action before the end of caller.\r\n"
+"Minimum 1sec, maximu 20sec, and not over the ActionDuration\r\n"
+msgstr ""
+"Pre-Delay:\r\n"
+"Define the advance period for this action before the end of caller.\r\n"
+"Minimum 1sec, maximu 20sec, and not over the ActionDuration\r\n"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/ActionProperties/ControlStoppedProperties.Designer.cs:52
+msgid "No Parameter to set"
+msgstr "Nenhum parâmetro para definir"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/ActionProperties/ControlStoppedProperties.Designer.cs:62
+msgid "ControlStoppedProperties"
+msgstr "Controlar propriedades interrompidas"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/ActionProperties/HornProperties.Designer.cs:55
+msgid "Delay :"
+msgstr "Atraso :"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/ActionProperties/HornProperties.Designer.cs:72
+msgid "Required Trigger Distance :"
+msgstr "Distância necessária do acionador :"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/ActionProperties/HornProperties.Designer.cs:93
+msgid "HornProperties"
+msgstr "Propriedades de buzina"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Activity/StartActivity.Designer.cs:100
+#: ../../Contrib/ActivityEditor/ActivityEditor/Activity/StartActivity.Designer.cs:111
+#: ../../Contrib/ActivityEditor/ActivityEditor/Activity/StartActivity.Designer.cs:339
+#: ../../Contrib/ActivityEditor/ActivityEditor/Wizard/ActivityDescr.cs:141
+msgid "Activity Description"
+msgstr "Descrição da atividade"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Activity/StartActivity.Designer.cs:123
+#: ../../Contrib/ActivityEditor/ActivityEditor/Activity/StartActivity.Designer.cs:351
+msgid "Path Events"
+msgstr "Eventos do Path"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Activity/StartActivity.Designer.cs:131
+#: ../../Contrib/ActivityEditor/ActivityEditor/Activity/StartActivity.Designer.cs:257
+#: ../../Contrib/ActivityEditor/ActivityEditor/Activity/StartActivity.Designer.cs:359
+#: ../../Contrib/ActivityEditor/ActivityEditor/Preference/Options.Designer.cs:295
+#: ../../Contrib/ActivityEditor/ActivityEditor/Route%20Metadata/BufferInterface.Designer.cs:82
+#: ../../Contrib/ActivityEditor/ActivityEditor/Route%20Metadata/ConnectorInterface.Designer.cs:76
+msgid "Remove"
+msgstr "Remover"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Activity/StartActivity.Designer.cs:140
+#: ../../Contrib/ActivityEditor/ActivityEditor/Activity/StartActivity.Designer.cs:273
+#: ../../Contrib/ActivityEditor/ActivityEditor/Activity/StartActivity.Designer.cs:368
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/ActEditor.Designer.cs:198
+msgid "Edit"
+msgstr "Editar"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Activity/StartActivity.Designer.cs:179
+#: ../../Contrib/ActivityEditor/ActivityEditor/Activity/StartActivity.Designer.cs:406
+#: ../../Contrib/ActivityEditor/ActivityEditor/Activity/WaitActivity.Designer.cs:96
+msgid "Description"
+msgstr "Descrição"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Activity/StartActivity.Designer.cs:195
+#: ../../Contrib/ActivityEditor/ActivityEditor/Activity/StartActivity.Designer.cs:283
+#: ../../Contrib/ActivityEditor/ActivityEditor/Activity/StartActivity.Designer.cs:422
+msgid "Consist :"
+msgstr "Composição:"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Activity/StartActivity.Designer.cs:212
+#: ../../Contrib/ActivityEditor/ActivityEditor/Activity/StartActivity.Designer.cs:329
+#: ../../Contrib/ActivityEditor/ActivityEditor/Activity/StartActivity.Designer.cs:439
+msgid "Description :"
+msgstr "Descrição:"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Activity/StartActivity.Designer.cs:228
+#: ../../Contrib/ActivityEditor/ActivityEditor/Activity/StartActivity.Designer.cs:320
+#: ../../Contrib/ActivityEditor/ActivityEditor/Activity/StartActivity.Designer.cs:455
+msgid "Activity Name : "
+msgstr "Nome da atividade : "
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Activity/StartActivity.Designer.cs:238
+#: ../../Contrib/ActivityEditor/ActivityEditor/Activity/StartActivity.Designer.cs:249
+msgid "Traffic Description"
+msgstr "Descrição do tráfego"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Activity/StartActivity.Designer.cs:464
+msgid "StartActivity"
+msgstr "Iniciar atividade"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Activity/WaitActivity.Designer.cs:67
+msgid "Give your description :"
+msgstr "Escreva sua descrição:"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Activity/WaitActivity.Designer.cs:76
+msgid "Environment"
+msgstr "Environment"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Activity/WaitActivity.Designer.cs:105
+msgid "Place Name : "
+msgstr "Colocar nome : "
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Activity/WaitActivity.Designer.cs:115
+msgid "WAIT Activity Description"
+msgstr "WAIT Activity Description"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Activity/WaitActivity.Designer.cs:127
+msgid "WaitActivity"
+msgstr "WaitActivity"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/ActEditor.cs:524
+msgid "NoMoreAct"
+msgstr "NoMoreAct"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/ActEditor.Designer.cs:105
+msgid "menuStrip1"
+msgstr "menuStrip1"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/ActEditor.Designer.cs:118
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/SimpleTextEd.Designer.cs:62
+msgid "File"
+msgstr "Arquivo"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/ActEditor.Designer.cs:127
+msgid "New"
+msgstr "Novo"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/ActEditor.Designer.cs:134
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/ActEditor.Designer.cs:291
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/Viewer2D.Designer.cs:117
+msgid "Activity"
+msgstr "Atividade"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/ActEditor.Designer.cs:142
+msgid "Traffic"
+msgstr "Tráfego"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/ActEditor.Designer.cs:153
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/SimpleTextEd.Designer.cs:68
+msgid "Save"
+msgstr "Salvar"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/ActEditor.Designer.cs:160
+msgid "Metadata"
+msgstr "Metadata"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/ActEditor.Designer.cs:168
+msgid "Save As"
+msgstr "Salvar como"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/ActEditor.Designer.cs:175
+msgid "Load Activity"
+msgstr "Carregar atividade"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/ActEditor.Designer.cs:183
+msgid "Load Metada"
+msgstr "Carregar dados"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/ActEditor.Designer.cs:191
+#: ../../Contrib/ActivityEditor/ActivityEditor/Route%20Metadata/StationDisplay.Designer.cs:83
+msgid "Quit"
+msgstr "Sair"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/ActEditor.Designer.cs:207
+msgid "Tools"
+msgstr "Ferramentas"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/ActEditor.Designer.cs:213
+#: ../../Contrib/ActivityEditor/ActivityEditor/Preference/Options.Designer.cs:532
+msgid "Options"
+msgstr "Opções"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/ActEditor.Designer.cs:220
+msgid "Import"
+msgstr "Importar"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/ActEditor.Designer.cs:228
+msgid "Help"
+msgstr "Ajuda"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/ActEditor.Designer.cs:234
+msgid "About Activity Editor"
+msgstr "Sobre o editor de atividades"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/ActEditor.Designer.cs:245
+msgid "statusStrip1"
+msgstr "statusStrip1"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/ActEditor.Designer.cs:251
+msgid "Status"
+msgstr "Status"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/ActEditor.Designer.cs:301
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/Viewer2D.cs:2026
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/Viewer2D.cs:2128
+msgid "v"
+msgstr "v"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/ActEditor.Designer.cs:311
+msgid "Edit Description"
+msgstr "Editar descrição"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/ActEditor.Designer.cs:369
+msgid "Add Station Area"
+msgstr "Adicionar área da estação"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/ActEditor.Designer.cs:379
+#: ../../Contrib/ActivityEditor/ActivityEditor/Route%20Metadata/StationDisplay.Designer.cs:273
+msgid "Station Configuration"
+msgstr "Configuração de estação"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/ActEditor.Designer.cs:388
+msgid "Add Tag"
+msgstr "Adicionar etiqueta"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/ActEditor.Designer.cs:398
+msgid "Add Station"
+msgstr "Adicionar estação"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/ActEditor.Designer.cs:407
+msgid "Edit MetaSegment"
+msgstr "Editar MetaSegment"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/ActEditor.Designer.cs:429
+msgid "Move"
+msgstr "Mover"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/ActEditor.Designer.cs:439
+msgid "Rotate"
+msgstr "Girar"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/ActEditor.Designer.cs:466
+msgid "Activity Start"
+msgstr "Iniciar atividade"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/ActEditor.Designer.cs:476
+msgid "Activity Stop"
+msgstr "Parar atividade"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/ActEditor.Designer.cs:486
+msgid "Waiting Point"
+msgstr "Ponto de aguardo"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/ActEditor.Designer.cs:496
+msgid "Action Point"
+msgstr "Ponto de ação"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/ActEditor.Designer.cs:506
+msgid "Action Check"
+msgstr "Ponto de análise"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/ActEditor.Designer.cs:516
+msgid "toolStripButton10"
+msgstr "toolStripButton10"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/ActEditor.Designer.cs:135
+msgid "Click to start new Activity Description (not ready)"
+msgstr "Clique para iniciar a nova Descrição da Atividade (não pronta)"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/ActEditor.Designer.cs:143
+msgid "Click to create new Traffic description (not ready)"
+msgstr "Clique para criar uma nova descrição de tráfego (não pronta)"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/ActEditor.Designer.cs:176
+msgid "Click to load an existing OR Activity (not ready)"
+msgstr "Clique para carregar uma atividade OR existente (não pronta)"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/ActEditor.Designer.cs:184
+msgid "Click to Edit Metadata for a specified route"
+msgstr "Clique para editar metadados para uma rota especificada"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/SimpleTextEd.Designer.cs:85
+msgid "Form1"
+msgstr "Form1"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/Viewer2D.cs:164
+msgid "Route MetaData"
+msgstr "Rota MetaData"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/Viewer2D.cs:2004
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/Viewer2D.cs:2093
+msgid "Display"
+msgstr "Display"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/Viewer2D.cs:2015
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/Viewer2D.cs:2117
+msgid "x"
+msgstr "x"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/Viewer2D.cs:2041
+msgid "Tag"
+msgstr "Etiqueta"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/Viewer2D.cs:2107
+msgid "Station"
+msgstr "Estação"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Engine/Viewer2D.Designer.cs:107
+msgid "Center view"
+msgstr "Visão centralizada"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Preference/Options.Designer.cs:114
+msgid "Editor Options"
+msgstr "Opções do editor"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Preference/Options.Designer.cs:124
+msgid "Show Platform Label"
+msgstr "Show Platform Label"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Preference/Options.Designer.cs:190
+msgid "Zoom level :"
+msgstr "Nível do zoom :"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Preference/Options.Designer.cs:200
+msgid "Size of snap circle :"
+msgstr "Tamanho do círculo de encaixe :"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Preference/Options.Designer.cs:209
+msgid "Show Snap circle"
+msgstr "Mostrar círculo Snap"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Preference/Options.Designer.cs:220
+msgid "Show all Signal"
+msgstr "Mostrar todos sinais"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Preference/Options.Designer.cs:232
+#: ../../Contrib/ActivityEditor/ActivityEditor/Preference/Options.Designer.cs:435
+msgid "Editor Preference"
+msgstr "Preferência do editor"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Preference/Options.Designer.cs:250
+msgid "Path Options"
+msgstr "Opções do path"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Preference/Options.Designer.cs:261
+msgid "Please, configure your paths"
+msgstr "Por favor, configure seus paths"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Preference/Options.Designer.cs:305
+msgid "Add"
+msgstr "Adicionar"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Preference/Options.Designer.cs:316
+msgid "Route Paths"
+msgstr "Paths da rota"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Preference/Options.Designer.cs:324
+msgid "Browse"
+msgstr "Procurar"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Preference/Options.Designer.cs:342
+msgid "MSTS Path :"
+msgstr "MSTS Path :"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Preference/Options.Designer.cs:358
+msgid "Debug Options"
+msgstr "Depurador de opções"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Preference/Options.Designer.cs:368
+msgid "Show Snap Track Info"
+msgstr "Mostrar informações da faixa de snap"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Preference/Options.Designer.cs:379
+msgid "Show Snap Info"
+msgstr "Mostrar informações de snap"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Preference/Options.Designer.cs:390
+msgid "Show Snap Line"
+msgstr "Mostrar linha de encaixe"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Preference/Options.Designer.cs:401
+msgid "Show Ruler"
+msgstr "Mostrar régua"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Preference/Options.Designer.cs:412
+msgid "Show Track Info"
+msgstr "Mostrar informação de via"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Preference/Options.Designer.cs:423
+msgid "Show Tiles"
+msgstr "Mostrar terrenos"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Preference/Options.Designer.cs:451
+msgid "Actions Configuration"
+msgstr "Configuração de ações"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Preference/Options.Designer.cs:468
+msgid "< remove"
+msgstr "< remover"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Preference/Options.Designer.cs:478
+msgid "Add >"
+msgstr "Adicionar >"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Preference/Options.Designer.cs:511
+msgid "Configuration for Generic Auxiliary Actions"
+msgstr "Configuração para ações auxiliares genéricas"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Route%20Metadata/BufferInterface.cs:34
+#: ../../Contrib/ActivityEditor/ActivityEditor/Route%20Metadata/ConnectorInterface.cs:58
+#: ../../Contrib/ActivityEditor/ActivityEditor/Route%20Metadata/TrackSegmentInterface.cs:29
+msgid "Please, give a name"
+msgstr "Por favor, coloque um nome"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Route%20Metadata/BufferInterface.Designer.cs:56
+#: ../../Contrib/ActivityEditor/ActivityEditor/Route%20Metadata/ConnectorInterface.Designer.cs:104
+msgid "TC Section : "
+msgstr "TC seção : "
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Route%20Metadata/BufferInterface.Designer.cs:73
+msgid "Buffer Label : "
+msgstr "Etiqueta do buffer : "
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Route%20Metadata/BufferInterface.Designer.cs:93
+msgid "Buffer Direction : "
+msgstr "Direção do buffer : "
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Route%20Metadata/BufferInterface.Designer.cs:128
+msgid "BufferInterface"
+msgstr "Interface de Buffer"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Route%20Metadata/ConnectorInterface.cs:49
+msgid "Not yet implemented"
+msgstr "Ainda não implementado"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Route%20Metadata/ConnectorInterface.Designer.cs:67
+msgid "Connection Direction : "
+msgstr "Direção da conexão : "
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Route%20Metadata/ConnectorInterface.Designer.cs:87
+msgid "Connection Label : "
+msgstr "Etiqueta de conexão : "
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Route%20Metadata/ConnectorInterface.Designer.cs:130
+msgid "Station Route Interface"
+msgstr "Interface de estação da rota"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Route%20Metadata/StationDisplay.cs:39
+msgid "Please Load Paths:"
+msgstr "Por favor, carregue os paths:"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Route%20Metadata/StationDisplay.cs:43
+msgid "List of Paths seems OK:"
+msgstr "Lista de paths parece OK:"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Route%20Metadata/StationDisplay.cs:120
+msgid "###"
+msgstr "###"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Route%20Metadata/StationDisplay.cs:162
+msgid "Loaded:"
+msgstr "Carregado:"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Route%20Metadata/StationDisplay.Designer.cs:94
+msgid "Station :"
+msgstr "Estação:"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Route%20Metadata/StationDisplay.Designer.cs:163
+msgid "From"
+msgstr "De"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Route%20Metadata/StationDisplay.Designer.cs:174
+msgid " To "
+msgstr " Para "
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Route%20Metadata/StationDisplay.Designer.cs:185
+msgid "Max. Platform Length"
+msgstr "Comprimento máximo da plataforma"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Route%20Metadata/StationDisplay.Designer.cs:196
+msgid "Max. Siding Length"
+msgstr "Comprimento máximo do desvio"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Route%20Metadata/StationDisplay.Designer.cs:207
+msgid "Number of Platform"
+msgstr "Número da plataforma"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Route%20Metadata/StationDisplay.Designer.cs:218
+msgid "Number of Siding"
+msgstr "Número do desvio"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Route%20Metadata/StationDisplay.Designer.cs:229
+msgid "Max. Passing Length"
+msgstr "Comprimento máximo de passagem"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Route%20Metadata/StationDisplay.Designer.cs:248
+msgid "Load Paths"
+msgstr "Carregar paths"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Route%20Metadata/StationDisplay.Designer.cs:260
+msgid "label7"
+msgstr "label7"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Route%20Metadata/TrackSegmentInterface.Designer.cs:60
+msgid "Segment Label : "
+msgstr "Etiqueta do segmento : "
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Route%20Metadata/TrackSegmentInterface.Designer.cs:71
+msgid "TrackSegmentInterface"
+msgstr "Interface do segmento de via"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Wizard/ActivityDescr.cs:96
+msgid "Activity Editor: Create new activity"
+msgstr "Editor de atividade: Crie uma nova atividade"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Wizard/ActivityDescr.cs:106
+#: ../../Contrib/ActivityEditor/ActivityEditor/Wizard/SelectRoute.cs:69
+msgid "Route Path"
+msgstr "Path de rota"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Wizard/ActivityDescr.cs:124
+msgid "Activity Name"
+msgstr "Nome da atividade"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Wizard/SelectRoute.cs:48
+msgid "Route Configuration: Select Route"
+msgstr "Configuração de rota: Seleciona a rota"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Wizard/TrainInfo.cs:175
+msgid "Activity Editor: Specify Train Info"
+msgstr "Editor de atividade: Especifique informaão do trem"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Wizard/TrainInfo.cs:194
+msgid "Select Train Consist"
+msgstr "Selecione a composição"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Wizard/TrainInfo.cs:211
+msgid "Train Name (Opt.)"
+msgstr "Nome do trem (Opt.)"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Wizard/WizardForm.cs:191
+msgid "< &Back"
+msgstr "< Voltar"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Wizard/WizardForm.cs:200
+msgid "&Next >"
+msgstr "Próxima >"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Wizard/WizardForm.cs:210
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: ../../Contrib/ActivityEditor/ActivityEditor/Wizard/WizardForm.cs:219
+msgid "&Finish"
+msgstr "Finalizar"
