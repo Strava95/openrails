@@ -31,7 +31,7 @@ namespace Orts.Simulation.RollingStocks.SubSystems.PowerSupplies
         public readonly MSTSWagon Wagon;
         protected Simulator Simulator => Wagon.Simulator;
         protected Train Train => Wagon.Train;
-        protected Pantographs Pantographs => Wagon.Pantographs;
+        public Pantographs Pantographs => Wagon.Pantographs;
         protected int CarId = 0;
 
         public BatterySwitch BatterySwitch { get; protected set; }
@@ -146,6 +146,7 @@ namespace Orts.Simulation.RollingStocks.SubSystems.PowerSupplies
 
                 AssignScriptFunctions();
 
+                Script.AttachToHost(this);
                 Script.Initialize();
                 Activated = true;
             }
@@ -264,7 +265,7 @@ namespace Orts.Simulation.RollingStocks.SubSystems.PowerSupplies
                 return connectedToLocomotive;
             });
 
-            if (ElectricTrainSupplyConnectedLocomotives.Count() > 0)
+            if (ElectricTrainSupplyConnectedLocomotives.Any())
             {
                 ElectricTrainSupplyState = ElectricTrainSupplyConnectedLocomotives.Select(locomotive => locomotive.LocomotivePowerSupply.ElectricTrainSupplyState).Max();
             }
@@ -334,9 +335,6 @@ namespace Orts.Simulation.RollingStocks.SubSystems.PowerSupplies
             // AbstractPowerSupply setters
             Script.SetCurrentLowVoltagePowerSupplyState = (value) => LowVoltagePowerSupplyState = value;
             Script.SetCurrentBatteryState = (value) => BatteryState = value;
-            Script.SignalEventToBatterySwitch = (evt) => BatterySwitch.HandleEvent(evt);
-            Script.SignalEventToPantographs = (evt) => Wagon.Pantographs.HandleEvent(evt);
-            Script.SignalEventToPantograph = (evt, id) => Wagon.Pantographs.HandleEvent(evt, id);
 
             // PassengerCarPowerSupply setters
             Script.SetCurrentVentilationState = (value) => VentilationState = value;

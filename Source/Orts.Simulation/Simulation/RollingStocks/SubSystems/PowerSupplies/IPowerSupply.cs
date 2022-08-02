@@ -25,6 +25,7 @@ namespace Orts.Simulation.RollingStocks.SubSystems.PowerSupplies
     public interface IPowerSupply : ISubSystem<IPowerSupply>, IParsable
     {
         BatterySwitch BatterySwitch { get; }
+        Pantographs Pantographs { get; }
 
         PowerSupplyState ElectricTrainSupplyState { get; }
         bool ElectricTrainSupplyOn { get; }
