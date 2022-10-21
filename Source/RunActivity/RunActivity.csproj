@@ -14,8 +14,17 @@
     <Copyright>Copyright © 2009 - 2022</Copyright>
     <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
     <DefineConstants>TRACE;WINDOWS;NEW_ACTION;WITH_NEW_SAVE;ACTIVITY_EDITOR</DefineConstants>
+    <Platforms>AnyCPU;x64;x86</Platforms>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <DocumentationFile>..\..\Program\RunActivity.xml</DocumentationFile>
+    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+    <DocumentationFile>..\..\Program\RunActivity.xml</DocumentationFile>
+    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <DocumentationFile>..\..\Program\RunActivity.xml</DocumentationFile>
     <NoWarn>1591</NoWarn>
   </PropertyGroup>

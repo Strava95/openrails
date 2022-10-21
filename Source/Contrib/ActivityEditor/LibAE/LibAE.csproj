@@ -11,6 +11,7 @@
     <Copyright>Copyright © 2009 - 2022</Copyright>
     <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
     <DefineConstants>TRACE;WINDOWS;ACTIVITY_EDITOR;JSON_OR_XML</DefineConstants>
+    <Platforms>AnyCPU;x64;x86</Platforms>
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="Icon\Start.ico" />
