@@ -5,6 +5,7 @@
     <IsPublishable>False</IsPublishable>
     <Description>GNU.Gettext.Xgettext (forked from arbinada/gettext-dotnet)</Description>
     <PackageLicenseExpression>LGPL-2.1-or-later</PackageLicenseExpression>
+    <Platforms>AnyCPU;x64;x86</Platforms>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="ExtractorCsharp.cs" />

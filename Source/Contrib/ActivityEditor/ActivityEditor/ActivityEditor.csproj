@@ -14,6 +14,7 @@
     <Copyright>Copyright © 2009 - 2022</Copyright>
     <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
     <DefineConstants>TRACE;WINDOWS;ACTIVITY_EDITOR</DefineConstants>
+    <Platforms>AnyCPU;x64;x86</Platforms>
   </PropertyGroup>
   <ItemGroup>
     <Compile Update="Wizard\ActivityDescr.cs">

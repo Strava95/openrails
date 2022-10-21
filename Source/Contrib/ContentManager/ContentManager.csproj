@@ -14,6 +14,7 @@
     <Product>Open Rails</Product>
     <Copyright>Copyright © 2009 - 2022</Copyright>
     <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+    <Platforms>AnyCPU;x64;x86</Platforms>
   </PropertyGroup>
   <ItemGroup>
     <Compile Update="CueTextBox.cs">

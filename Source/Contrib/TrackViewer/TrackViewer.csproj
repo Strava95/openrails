@@ -16,6 +16,7 @@
     <Copyright>Copyright © 2009 - 2022</Copyright>
     <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
     <DefineConstants>TRACE;WINDOWS</DefineConstants>
+    <Platforms>AnyCPU;x64;x86</Platforms>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationManifest>..\..\Launcher\app.manifest</ApplicationManifest>
