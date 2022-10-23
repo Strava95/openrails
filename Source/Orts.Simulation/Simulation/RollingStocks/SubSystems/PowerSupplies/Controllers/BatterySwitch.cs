@@ -302,6 +302,15 @@ namespace Orts.Simulation.RollingStocks.SubSystems.PowerSupplies
                         Wagon.SignalEvent(Event.BatterySwitchCommandOff);
                     }
                     break;
+
+                case PowerSupplyEvent.OpenBatterySwitchRequestedByPowerSupply:
+                    if (Mode == ModeType.PushButtons)
+                    {
+                        On = false;
+                        Wagon.SignalEvent(Event.BatterySwitchOff);
+                        Timer.Stop();
+                    }
+                    break;
             }
         }
     }
