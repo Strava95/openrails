@@ -142,6 +142,21 @@ namespace ORTS.Scripting.Api
         protected float CurrentValue() => Host.CurrentValue;
 
         /// <summary>
+        /// Intermediate value of the brake controller
+        /// </summary>
+        protected float IntermediateValue
+        {
+            get
+            {
+                return Host.IntermediateValue;
+            }
+            set
+            {
+                Host.IntermediateValue = value;
+            }
+        }
+
+        /// <summary>
         /// Minimum value of the brake controller
         /// </summary>
         protected float MinimumValue() => Host.MinimumValue;
@@ -165,6 +180,21 @@ namespace ORTS.Scripting.Api
         /// Gives the list of notches
         /// </summary>
         protected List<MSTSNotch> Notches() => Host.Notches;
+
+        /// <summary>
+        /// Current notch of the brake controller
+        /// </summary>
+        protected int CurrentNotch
+        {
+            get
+            {
+                return Host.CurrentNotch;
+            }
+            set
+            {
+                Host.CurrentNotch = value;
+            }
+        }
 
         /// <summary>
         /// Fraction of train brake demanded by cruise control
