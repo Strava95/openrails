@@ -176,6 +176,9 @@ namespace Orts.Common
         TractionCutOffRelayOpeningOrderOn,
         TractionCutOffRelayClosingAuthorizationOff,
         TractionCutOffRelayClosingAuthorizationOn,
+        TrainBrakeControllerDecrease,
+        TrainBrakeControllerIncrease,
+        TrainBrakeControllerZero,
         TrainBrakeChange,
         TrainBrakePressureDecrease,
         TrainBrakePressureIncrease,
@@ -534,6 +537,10 @@ namespace Orts.Common
                         case 255: return Event.PantographSelectorIncrease;
                         case 256: return Event.PowerLimitationSelectorDecrease;
                         case 257: return Event.PowerLimitationSelectorIncrease;
+
+                        case 258: return Event.TrainBrakeControllerDecrease;
+                        case 259: return Event.TrainBrakeControllerIncrease;
+                        case 260: return Event.TrainBrakeControllerZero;
 
                         // Cruise Control
                         case 298: return Event.LeverFromZero;
