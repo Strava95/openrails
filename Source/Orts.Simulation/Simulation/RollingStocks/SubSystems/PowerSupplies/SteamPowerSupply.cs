@@ -114,6 +114,15 @@ namespace Orts.Simulation.RollingStocks.SubSystems.PowerSupplies
             set{}
         }
 
+        public bool ServiceRetentionActive
+        {
+            get
+            {
+                return false;
+            }
+            set{}
+        }
+
         public SteamPowerSupply(MSTSSteamLocomotive locomotive)
         {
             Car = locomotive;
