@@ -205,10 +205,11 @@ namespace Orts.Simulation.RollingStocks.SubSystems.PowerSupplies
 
         public override void Update(float elapsedClockSeconds)
         {
+            SetCurrentBatteryState(BatterySwitchOn() ? PowerSupplyState.PowerOn : PowerSupplyState.PowerOff);
             SetCurrentLowVoltagePowerSupplyState(BatterySwitchOn() ? PowerSupplyState.PowerOn : PowerSupplyState.PowerOff);
             SetCurrentCabPowerSupplyState(BatterySwitchOn() && MasterKeyOn() ? PowerSupplyState.PowerOn : PowerSupplyState.PowerOff);
 
-            switch (CurrentPantographState())
+            switch (PantographState)
             {
                 case PantographState.Down:
                 case PantographState.Lowering:
@@ -227,7 +228,7 @@ namespace Orts.Simulation.RollingStocks.SubSystems.PowerSupplies
                 case PantographState.Up:
                     PantographVoltageV = PantographFilter.Filter(LineVoltageV, elapsedClockSeconds);
 
-                    switch (CurrentCircuitBreakerState())
+                    switch (CircuitBreakerState)
                     {
                         case CircuitBreakerState.Open:
                             if (PowerOnTimer.Started)
@@ -252,6 +253,20 @@ namespace Orts.Simulation.RollingStocks.SubSystems.PowerSupplies
                             break;
                     }
                     break;
+            }
+
+            if (ElectricTrainSupplyUnfitted())
+            {
+                SetCurrentElectricTrainSupplyState(PowerSupplyState.Unavailable);
+            }
+            else if (CurrentAuxiliaryPowerSupplyState() == PowerSupplyState.PowerOn
+                     && ElectricTrainSupplySwitchOn())
+            {
+                SetCurrentElectricTrainSupplyState(PowerSupplyState.PowerOn);
+            }
+            else
+            {
+                SetCurrentElectricTrainSupplyState(PowerSupplyState.PowerOff);
             }
         }
 
