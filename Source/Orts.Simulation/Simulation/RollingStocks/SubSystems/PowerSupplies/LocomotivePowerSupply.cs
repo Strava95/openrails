@@ -40,6 +40,7 @@ namespace Orts.Simulation.RollingStocks.SubSystems.PowerSupplies
 
         public abstract PowerSupplyType Type { get; }
         protected string ScriptName = "Default";
+        public string ParametersFileName { get; protected set; }
         protected LocomotivePowerSupply AbstractScript;
 
         public PowerSupplyState MainPowerSupplyState { get; set; } = PowerSupplyState.PowerOff;
@@ -103,6 +104,10 @@ namespace Orts.Simulation.RollingStocks.SubSystems.PowerSupplies
                     ScriptName = stf.ReadStringBlock(null);
                     break;
 
+                case "engine(ortspowersupplyparameters":
+                    ParametersFileName = stf.ReadStringBlock(null);
+                    break;
+
                 case "engine(ortspowerondelay":
                     PowerOnDelayS = stf.ReadFloatBlock(STFReader.UNITS.Time, null);
                     break;
@@ -137,6 +142,7 @@ namespace Orts.Simulation.RollingStocks.SubSystems.PowerSupplies
                 ElectricTrainSupplySwitch.Copy(scriptedOther.ElectricTrainSupplySwitch);
 
                 ScriptName = scriptedOther.ScriptName;
+                ParametersFileName = scriptedOther.ParametersFileName;
 
                 PowerOnDelayS = scriptedOther.PowerOnDelayS;
                 AuxPowerOnDelayS = scriptedOther.AuxPowerOnDelayS;
