@@ -334,7 +334,6 @@ namespace Orts.Simulation.RollingStocks.SubSystems.PowerSupplies
                                 break;
                         }
                     }
-
                     break;
 
                 case PowerSupplyEvent.RaisePantograph:
@@ -368,6 +367,68 @@ namespace Orts.Simulation.RollingStocks.SubSystems.PowerSupplies
 
                         if (!Simulator.TRK.Tr_RouteFile.Electrified)
                             Simulator.Confirmer.Information(Simulator.Catalog.GetString("Pantograph raised even though this route is not electrified"));
+                    }
+                    break;
+
+                case PowerSupplyEvent.QuickPowerOn: // for AI control and quick initialization
+                    if (State == PantographState.Down || State == PantographState.Lowering)
+                    {
+                        State = PantographState.Up;
+
+                        switch (Id)
+                        {
+                            default:
+                            case 1:
+                                soundEvent = Event.Pantograph1Up;
+                                Confirm(CabControl.Pantograph1, CabSetting.On);
+                                break;
+
+                            case 2:
+                                soundEvent = Event.Pantograph2Up;
+                                Confirm(CabControl.Pantograph2, CabSetting.On);
+                                break;
+
+                            case 3:
+                                soundEvent = Event.Pantograph3Up;
+                                Confirm(CabControl.Pantograph3, CabSetting.On);
+                                break;
+
+                            case 4:
+                                soundEvent = Event.Pantograph4Up;
+                                Confirm(CabControl.Pantograph4, CabSetting.On);
+                                break;
+                        }
+                    }
+                    break;
+
+                case PowerSupplyEvent.QuickPowerOff: // for AI control and quick initialization
+                    if (State == PantographState.Up || State == PantographState.Raising)
+                    {
+                        State = PantographState.Down;
+
+                        switch (Id)
+                        {
+                            default:
+                            case 1:
+                                soundEvent = Event.Pantograph1Down;
+                                Confirm(CabControl.Pantograph1, CabSetting.Off);
+                                break;
+
+                            case 2:
+                                soundEvent = Event.Pantograph2Down;
+                                Confirm(CabControl.Pantograph2, CabSetting.Off);
+                                break;
+
+                            case 3:
+                                soundEvent = Event.Pantograph3Down;
+                                Confirm(CabControl.Pantograph3, CabSetting.Off);
+                                break;
+
+                            case 4:
+                                soundEvent = Event.Pantograph4Down;
+                                Confirm(CabControl.Pantograph4, CabSetting.Off);
+                                break;
+                        }
                     }
                     break;
             }
