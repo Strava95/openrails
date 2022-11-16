@@ -29,7 +29,6 @@ using Orts.Parsers.Msts;
 using Orts.Simulation.Physics;
 using Orts.Simulation.RollingStocks.SubSystems.Brakes;
 using Orts.Simulation.RollingStocks.SubSystems.Brakes.MSTS;
-using Orts.Simulation.RollingStocks.SubSystems.PowerSupplies;
 using ORTS.Common;
 using ORTS.Scripting.Api;
 using ORTS.Scripting.Api.ETCS;
@@ -160,10 +159,10 @@ namespace Orts.Simulation.RollingStocks.SubSystems
         public readonly MSTSLocomotive Locomotive;
         public readonly Simulator Simulator;
 
-        float ItemSpeedLimit;
-        Aspect ItemAspect;
-        float ItemDistance;
-        string MainHeadSignalTypeName;
+        public float ItemSpeedLimit;
+        public Aspect ItemAspect;
+        public float ItemDistance;
+        public string MainHeadSignalTypeName;
 
         MonitoringDevice VigilanceMonitor;
         MonitoringDevice OverspeedMonitor;
@@ -189,12 +188,12 @@ namespace Orts.Simulation.RollingStocks.SubSystems
             }
         }
         public bool AlerterButtonPressed { get; private set; }
-        public bool PowerAuthorization { get; private set; }
-        public bool CircuitBreakerClosingOrder { get; private set; }
-        public bool CircuitBreakerOpeningOrder { get; private set; }
-        public bool TractionAuthorization { get; private set; }
-        public float MaxThrottlePercent { get; private set; } = 100f;
-        public bool FullDynamicBrakingOrder { get; private set; }
+        public bool PowerAuthorization { get; set; }
+        public bool CircuitBreakerClosingOrder { get; set; }
+        public bool CircuitBreakerOpeningOrder { get; set; }
+        public bool TractionAuthorization { get; set; }
+        public float MaxThrottlePercent { get; set; } = 100f;
+        public bool FullDynamicBrakingOrder { get; set; }
 
         public Dictionary<int, float> CabDisplayControls = new Dictionary<int, float>();
 
@@ -204,20 +203,20 @@ namespace Orts.Simulation.RollingStocks.SubSystems
         // List of customized control strings;
         public Dictionary<int, string> CustomizedCabviewControlNames = new Dictionary<int, string>();
         // TODO : Delete this when SetCustomizedTCSControlString is deleted
-        protected int NextCabviewControlNameToEdit = 0;
+        public int NextCabviewControlNameToEdit = 0;
 
-        string ScriptName;
-        string SoundFileName;
-        string ParametersFileName;
-        string TrainParametersFileName;
+        public string ScriptName;
+        public string SoundFileName;
+        public string ParametersFileName;
+        public string TrainParametersFileName;
         TrainControlSystem Script;
 
         public ETCSStatus ETCSStatus { get { return Script?.ETCSStatus; } }
 
         public Dictionary<TrainControlSystem, string> Sounds = new Dictionary<TrainControlSystem, string>();
 
-        const float GravityMpS2 = 9.80665f;
-        const float GenericItemDistance = 400.0f;
+        public const float GravityMpS2 = 9.80665f;
+        public const float GenericItemDistance = 400.0f;
 
         public ScriptedTrainControlSystem() { }
 
@@ -370,286 +369,7 @@ namespace Orts.Simulation.RollingStocks.SubSystems
                         Locomotive.Train.SignalEvent(evt);
                     }
                 };
-
-                // TrainControlSystem getters
-                Script.IsTrainControlEnabled = () => Locomotive == Locomotive.Train.LeadLocomotive && Locomotive.Train.TrainType != Train.TRAINTYPE.AI_PLAYERHOSTING;
-                Script.IsAutopiloted = () => Locomotive == Simulator.PlayerLocomotive && Locomotive.Train.TrainType == Train.TRAINTYPE.AI_PLAYERHOSTING;
-                Script.IsAlerterEnabled = () =>
-                {
-                    return Simulator.Settings.Alerter
-                        && !(Simulator.Settings.AlerterDisableExternal
-                            && !Simulator.PlayerIsInCab
-                        );
-                };
-                Script.IsSpeedControlEnabled = () => Simulator.Settings.SpeedControl;
-                Script.IsLowVoltagePowerSupplyOn = () => Locomotive.LocomotivePowerSupply.LowVoltagePowerSupplyOn;
-                Script.IsCabPowerSupplyOn = () => Locomotive.LocomotivePowerSupply.CabPowerSupplyOn;
-                Script.AlerterSound = () => Locomotive.AlerterSnd;
-                Script.TrainSpeedLimitMpS = () => Math.Min(Locomotive.Train.AllowedMaxSpeedMpS, Locomotive.Train.TrainMaxSpeedMpS);
-                Script.TrainMaxSpeedMpS = () => Locomotive.Train.TrainMaxSpeedMpS; // max speed for train in a specific section, independently from speedpost and signal limits
-                Script.CurrentSignalSpeedLimitMpS = () => Locomotive.Train.allowedMaxSpeedSignalMpS;
-                Script.NextSignalSpeedLimitMpS = (value) => NextGenericSignalItem<float>(value, ref ItemSpeedLimit, float.MaxValue,Train.TrainObjectItem.TRAINOBJECTTYPE.SIGNAL, "NORMAL");
-                Script.NextSignalAspect = (value) => NextGenericSignalItem<Aspect>(value, ref ItemAspect, float.MaxValue, Train.TrainObjectItem.TRAINOBJECTTYPE.SIGNAL, "NORMAL");
-                Script.NextSignalDistanceM = (value) => NextGenericSignalItem<float>(value, ref ItemDistance, float.MaxValue, Train.TrainObjectItem.TRAINOBJECTTYPE.SIGNAL, "NORMAL");
-                Script.NextNormalSignalDistanceHeadsAspect = () => NextNormalSignalDistanceHeadsAspect();
-                Script.DoesNextNormalSignalHaveTwoAspects = () => DoesNextNormalSignalHaveTwoAspects();
-                Script.NextDistanceSignalAspect = () =>
-                    NextGenericSignalItem<Aspect>(0, ref ItemAspect, GenericItemDistance, Train.TrainObjectItem.TRAINOBJECTTYPE.SIGNAL, "DISTANCE");
-                Script.NextDistanceSignalDistanceM = () =>
-                    NextGenericSignalItem<float>(0, ref ItemDistance, GenericItemDistance, Train.TrainObjectItem.TRAINOBJECTTYPE.SIGNAL, "DISTANCE");
-                Script.NextGenericSignalMainHeadSignalType = (string type) =>
-                    NextGenericSignalItem<string>(0, ref MainHeadSignalTypeName, GenericItemDistance, Train.TrainObjectItem.TRAINOBJECTTYPE.SIGNAL, type);
-                Script.NextGenericSignalAspect = (string type) =>
-                    NextGenericSignalItem<Aspect>(0, ref ItemAspect, GenericItemDistance, Train.TrainObjectItem.TRAINOBJECTTYPE.SIGNAL, type);
-                Script.NextGenericSignalDistanceM = (string type) =>
-                    NextGenericSignalItem<float>(0, ref ItemDistance, GenericItemDistance, Train.TrainObjectItem.TRAINOBJECTTYPE.SIGNAL, type);
-                Script.NextGenericSignalFeatures = (arg1, arg2, arg3) => NextGenericSignalFeatures(arg1, arg2, arg3, Train.TrainObjectItem.TRAINOBJECTTYPE.SIGNAL);
-                Script.NextSpeedPostFeatures = (arg1, arg2) => NextSpeedPostFeatures(arg1, arg2);
-                Script.DoesNextNormalSignalHaveRepeaterHead = () => DoesNextNormalSignalHaveRepeaterHead();
-                Script.CurrentPostSpeedLimitMpS = () => Locomotive.Train.allowedMaxSpeedLimitMpS;
-                Script.NextPostSpeedLimitMpS = (value) => NextGenericSignalItem<float>(value, ref ItemSpeedLimit, float.MaxValue, Train.TrainObjectItem.TRAINOBJECTTYPE.SPEEDPOST);
-                Script.NextPostDistanceM = (value) => NextGenericSignalItem<float>(value, ref ItemDistance, float.MaxValue, Train.TrainObjectItem.TRAINOBJECTTYPE.SPEEDPOST);
-                Script.NextTunnel = (value) =>
-                {
-                    var list = Locomotive.Train.PlayerTrainTunnels[Locomotive.Train.MUDirection == Direction.Reverse ? 1 : 0];
-                    if (list == null || value >= list.Count) return new TunnelInfo(float.MaxValue, -1);
-                    return new TunnelInfo(list[value].DistanceToTrainM, list[value].StationPlatformLength);
-                };
-                Script.NextMilepost = (value) =>
-                {
-                    var list = Locomotive.Train.PlayerTrainMileposts[Locomotive.Train.MUDirection == Direction.Reverse ? 1 : 0];
-                    if (list == null || value >= list.Count) return new MilepostInfo(float.MaxValue, -1);
-                    return new MilepostInfo(list[value].DistanceToTrainM, float.Parse(list[value].ThisMile));
-                };
-                Script.EOADistanceM = (value) => Locomotive.Train.DistanceToEndNodeAuthorityM[value];
-                Script.TrainLengthM = () => Locomotive.Train != null ? Locomotive.Train.Length : 0f;
                 Script.SpeedMpS = () => Math.Abs(Locomotive.SpeedMpS);
-                Script.CurrentDirection = () => Locomotive.Direction; // Direction of locomotive, may be different from direction of train
-                Script.IsDirectionForward = () => Locomotive.Direction == Direction.Forward;
-                Script.IsDirectionNeutral = () => Locomotive.Direction == Direction.N;
-                Script.IsDirectionReverse = () => Locomotive.Direction == Direction.Reverse;
-                Script.CurrentTrainMUDirection = () => Locomotive.Train.MUDirection; // Direction of train
-                Script.IsFlipped = () => Locomotive.Flipped;
-                Script.IsRearCab = () => Locomotive.UsingRearCab;
-                Script.IsBrakeEmergency = () => Locomotive.TrainBrakeController.EmergencyBraking;
-                Script.IsBrakeFullService = () => Locomotive.TrainBrakeController.TCSFullServiceBraking;
-                Script.PowerAuthorization = () => PowerAuthorization;
-                Script.CircuitBreakerClosingOrder = () => CircuitBreakerClosingOrder;
-                Script.CircuitBreakerOpeningOrder = () => CircuitBreakerOpeningOrder;
-                Script.PantographCount = () => Locomotive.Pantographs.Count;
-                Script.GetPantographState = (pantoID) =>
-                {
-                    if (pantoID >= Pantographs.MinPantoID && pantoID <= Pantographs.MaxPantoID)
-                    {
-                        return Locomotive.Pantographs[pantoID].State;
-                    }
-                    else
-                    {
-                        Trace.TraceError($"TCS script used bad pantograph ID {pantoID}");
-                        return PantographState.Down;
-                    }
-                };
-                Script.ArePantographsDown = () => Locomotive.Pantographs.State == PantographState.Down;
-                Script.CurrentDoorState = (side) => Locomotive.Train.DoorState(Locomotive.Flipped ^ Locomotive.GetCabFlipped() ? Doors.FlippedDoorSide(side) : side);
-                Script.ThrottlePercent = () => Locomotive.ThrottleController.CurrentValue * 100;
-                Script.MaxThrottlePercent = () => MaxThrottlePercent;
-                Script.DynamicBrakePercent = () => Locomotive.DynamicBrakeController == null ? 0 : Locomotive.DynamicBrakeController.CurrentValue * 100;
-                Script.TractionAuthorization = () => TractionAuthorization;
-                Script.BrakePipePressureBar = () => Locomotive.BrakeSystem != null ? Bar.FromPSI(Locomotive.BrakeSystem.BrakeLine1PressurePSI) : float.MaxValue;
-                Script.LocomotiveBrakeCylinderPressureBar = () => Locomotive.BrakeSystem != null ? Bar.FromPSI(Locomotive.BrakeSystem.GetCylPressurePSI()) : float.MaxValue;
-                Script.DoesBrakeCutPower = () => DoesBrakeCutPower;
-                Script.DoesVacuumBrakeCutPower = () => DoesVacuumBrakeCutPower;
-                Script.BrakeCutsPowerAtBrakeCylinderPressureBar = () => Bar.FromPSI(BrakeCutsPowerAtBrakeCylinderPressurePSI);
-                Script.BrakeCutsPowerAtBrakePipePressureBar = () => Locomotive.BrakeSystem is VacuumSinglePipe ? Bar.FromPSI(VacuumSinglePipe.OneAtmospherePSI - BrakeCutsPowerAtBrakePipePressurePSI) : Bar.FromPSI(BrakeCutsPowerAtBrakePipePressurePSI);
-                Script.BrakeRestoresPowerAtBrakePipePressureBar = () => Locomotive.BrakeSystem is VacuumSinglePipe ? Bar.FromPSI(VacuumSinglePipe.OneAtmospherePSI - BrakeRestoresPowerAtBrakePipePressurePSI) : Bar.FromPSI(BrakeRestoresPowerAtBrakePipePressurePSI);
-                Script.BrakeCutsPowerForMinimumSpeedMpS = () => BrakeCutsPowerForMinimumSpeedMpS;
-                Script.BrakeCutsPowerUntilTractionCommandCancelled = () => BrakeCutsPowerUntilTractionCommandCancelled;
-                Script.BrakeTractionCutOffMode = () => BrakeTractionCutOffMode;
-                Script.TrainBrakeControllerState = () => Locomotive.TrainBrakeController.TrainBrakeControllerState;
-                Script.AccelerationMpSS = () => Locomotive.AccelerationMpSS;
-                Script.AltitudeM = () => Locomotive.WorldPosition.Location.Y;
-                Script.CurrentGradientPercent = () => -Locomotive.CurrentElevationPercent;
-                Script.LineSpeedMpS = () => (float)Simulator.TRK.Tr_RouteFile.SpeedLimit;
-                Script.SignedDistanceM = () => Locomotive.Train.DistanceTravelledM;
-                Script.DoesStartFromTerminalStation = () => DoesStartFromTerminalStation();
-                Script.IsColdStart = () => Locomotive.Train.ColdStart;
-                Script.GetTrackNodeOffset = () => Locomotive.Train.FrontTDBTraveller.TrackNodeLength - Locomotive.Train.FrontTDBTraveller.TrackNodeOffset;
-                Script.NextDivergingSwitchDistanceM = (value) =>
-                {
-                    var list = Locomotive.Train.PlayerTrainDivergingSwitches[Locomotive.Train.MUDirection == Direction.Reverse ? 1 : 0, 0];
-                    if (list == null || list.Count == 0 || list[0].DistanceToTrainM > value) return float.MaxValue;
-                    return list[0].DistanceToTrainM;
-                };
-                Script.NextTrailingDivergingSwitchDistanceM = (value) =>
-                {
-                    var list = Locomotive.Train.PlayerTrainDivergingSwitches[Locomotive.Train.MUDirection == Direction.Reverse ? 1 : 0, 1];
-                    if (list == null || list.Count == 0 || list[0].DistanceToTrainM > value) return float.MaxValue;
-                    return list[0].DistanceToTrainM;
-                };
-                Script.GetControlMode = () => (TRAIN_CONTROL)(int)Locomotive.Train.ControlMode;
-                Script.NextStationName = () => Locomotive.Train.StationStops != null && Locomotive.Train.StationStops.Count > 0 ? Locomotive.Train.StationStops[0].PlatformItem.Name : "";
-                Script.NextStationDistanceM = () => Locomotive.Train.StationStops != null && Locomotive.Train.StationStops.Count > 0 ? Locomotive.Train.StationStops[0].DistanceToTrainM : float.MaxValue;
-
-                // TrainControlSystem functions
-                Script.SpeedCurve = (arg1, arg2, arg3, arg4, arg5) => SpeedCurve(arg1, arg2, arg3, arg4, arg5);
-                Script.DistanceCurve = (arg1, arg2, arg3, arg4, arg5) => DistanceCurve(arg1, arg2, arg3, arg4, arg5);
-                Script.Deceleration = (arg1, arg2, arg3) => Deceleration(arg1, arg2, arg3);
-
-                // TrainControlSystem setters
-                Script.SetFullBrake = (value) =>
-                {
-                    if (Locomotive.TrainBrakeController.TCSFullServiceBraking != value)
-                    {
-                        Locomotive.TrainBrakeController.TCSFullServiceBraking = value;
-
-                        //Debrief Eval
-                        if (value && Locomotive.IsPlayerTrain && !ldbfevalfullbrakeabove16kmh && Math.Abs(Locomotive.SpeedMpS) > 4.44444)
-                        {
-                            var train = Simulator.PlayerLocomotive.Train;//Debrief Eval
-                            DbfevalFullBrakeAbove16kmh++;
-                            ldbfevalfullbrakeabove16kmh = true;
-                            train.DbfEvalValueChanged = true;//Debrief eval
-                        }
-                        if (!value)
-                            ldbfevalfullbrakeabove16kmh = false;
-                    }
-                };
-                Script.SetEmergencyBrake = (value) =>
-                {
-                    if (Locomotive.TrainBrakeController.TCSEmergencyBraking != value)
-                        Locomotive.TrainBrakeController.TCSEmergencyBraking = value;
-                };
-                Script.SetFullDynamicBrake = (value) => FullDynamicBrakingOrder = value;
-                Script.SetThrottleController = (value) => Locomotive.ThrottleController.SetValue(value);
-                Script.SetDynamicBrakeController = (value) =>
-                {
-                if (Locomotive.DynamicBrakeController == null) return;
-                Locomotive.DynamicBrakeChangeActiveState(value > 0);
-                Locomotive.DynamicBrakeController.SetValue(value);
-                };
-                Script.SetPantographsDown = () =>
-                {
-                    if (Locomotive.Pantographs.State == PantographState.Up)
-                    {
-                        Locomotive.Train.SignalEvent(PowerSupplyEvent.LowerPantograph);
-                    }
-                };
-                Script.SetPantographUp = (pantoID) =>
-                {
-                    if (pantoID < Pantographs.MinPantoID || pantoID > Pantographs.MaxPantoID)
-                    {
-                        Trace.TraceError($"TCS script used bad pantograph ID {pantoID}");
-                        return;
-                    }
-                    Locomotive.Train.SignalEvent(PowerSupplyEvent.RaisePantograph, pantoID);
-                };               
-                Script.SetPantographDown = (pantoID) =>
-                {
-                    if (pantoID < Pantographs.MinPantoID || pantoID > Pantographs.MaxPantoID)
-                    {
-                        Trace.TraceError($"TCS script used bad pantograph ID {pantoID}");
-                        return;
-                    }
-                    Locomotive.Train.SignalEvent(PowerSupplyEvent.LowerPantograph, pantoID);
-                };
-                Script.SetPowerAuthorization = (value) => PowerAuthorization = value;
-                Script.SetCircuitBreakerClosingOrder = (value) => CircuitBreakerClosingOrder = value;
-                Script.SetCircuitBreakerOpeningOrder = (value) => CircuitBreakerOpeningOrder = value;
-                Script.SetTractionAuthorization = (value) => TractionAuthorization = value;
-                Script.SetMaxThrottlePercent = (value) =>
-                {
-                    if (value >= 0 && value <= 100f)
-                    {
-                        MaxThrottlePercent = value;
-                    }
-                };
-                Script.SetVigilanceAlarm = (value) => Locomotive.SignalEvent(value ? Event.VigilanceAlarmOn : Event.VigilanceAlarmOff);
-                Script.SetHorn = (value) => Locomotive.TCSHorn = value;
-                Script.SetDoors = (side, open) => Locomotive.Train.SetDoors(Locomotive.Flipped ^ Locomotive.GetCabFlipped() ? Doors.FlippedDoorSide(side) : side, open);
-                Script.LockDoors = (side, lck) => Locomotive.Train.LockDoors(Locomotive.Flipped ^ Locomotive.GetCabFlipped() ? Doors.FlippedDoorSide(side) : side, lck);
-
-                Script.TriggerSoundAlert1 = () => this.SignalEvent(Event.TrainControlSystemAlert1, Script);
-                Script.TriggerSoundAlert2 = () => this.SignalEvent(Event.TrainControlSystemAlert2, Script);
-                Script.TriggerSoundInfo1 = () => this.SignalEvent(Event.TrainControlSystemInfo1, Script);
-                Script.TriggerSoundInfo2 = () => this.SignalEvent(Event.TrainControlSystemInfo2, Script);
-                Script.TriggerSoundPenalty1 = () => this.SignalEvent(Event.TrainControlSystemPenalty1, Script);
-                Script.TriggerSoundPenalty2 = () => this.SignalEvent(Event.TrainControlSystemPenalty2, Script);
-                Script.TriggerSoundWarning1 = () => this.SignalEvent(Event.TrainControlSystemWarning1, Script);
-                Script.TriggerSoundWarning2 = () => this.SignalEvent(Event.TrainControlSystemWarning2, Script);
-                Script.TriggerSoundSystemActivate = () => this.SignalEvent(Event.TrainControlSystemActivate, Script);
-                Script.TriggerSoundSystemDeactivate = () => this.SignalEvent(Event.TrainControlSystemDeactivate, Script);
-                Script.TriggerGenericSound = (value) => this.SignalEvent(value, Script);
-                Script.SetVigilanceAlarmDisplay = (value) => this.VigilanceAlarm = value;
-                Script.SetVigilanceEmergencyDisplay = (value) => this.VigilanceEmergency = value;
-                Script.SetOverspeedWarningDisplay = (value) => this.OverspeedWarning = value;
-                Script.SetPenaltyApplicationDisplay = (value) => this.PenaltyApplication = value;
-                Script.SetMonitoringStatus = (value) =>
-                {
-                    switch (value)
-                    {
-                        case MonitoringStatus.Normal:
-                        case MonitoringStatus.Indication:
-                            ETCSStatus.CurrentMonitor = Monitor.CeilingSpeed;
-                            ETCSStatus.CurrentSupervisionStatus = SupervisionStatus.Normal;
-                            break;
-                        case MonitoringStatus.Overspeed:
-                            ETCSStatus.CurrentMonitor = Monitor.TargetSpeed;
-                            ETCSStatus.CurrentSupervisionStatus = SupervisionStatus.Indication;
-                            break;
-                        case MonitoringStatus.Warning:
-                            ETCSStatus.CurrentSupervisionStatus = SupervisionStatus.Overspeed;
-                            break;
-                        case MonitoringStatus.Intervention:
-                            ETCSStatus.CurrentSupervisionStatus = SupervisionStatus.Intervention;
-                            break;
-                    }
-                };
-                Script.SetCurrentSpeedLimitMpS = (value) =>
-                {
-                    this.CurrentSpeedLimitMpS = value;
-                    ETCSStatus.AllowedSpeedMpS = value;
-                };
-                Script.SetNextSpeedLimitMpS = (value) => {
-                    this.NextSpeedLimitMpS = value;
-                    ETCSStatus.TargetSpeedMpS = value;
-                };
-                Script.SetInterventionSpeedLimitMpS = (value) => Script.ETCSStatus.InterventionSpeedMpS = value;
-                Script.SetNextSignalAspect = (value) => this.CabSignalAspect = (TrackMonitorSignalAspect)value;
-                Script.SetCabDisplayControl = (arg1, arg2) => CabDisplayControls[arg1] = arg2;
-                Script.SetCustomizedTCSControlString = (value) =>
-                {
-                    if (NextCabviewControlNameToEdit == 0)
-                    {
-                        Trace.TraceWarning("SetCustomizedTCSControlString is deprecated. Please use SetCustomizedCabviewControlName.");
-                    }
-
-                        CustomizedCabviewControlNames[NextCabviewControlNameToEdit] = value;
-
-                    NextCabviewControlNameToEdit++;
-                };
-                Script.SetCustomizedCabviewControlName = (id, value) =>
-                {
-                    if (id >= 0)
-                    {
-                        CustomizedCabviewControlNames[id] = value;
-                    }
-                };
-                Script.RequestToggleManualMode = () => 
-                {
-                    if (Locomotive.Train.ControlMode == Train.TRAIN_CONTROL.OUT_OF_CONTROL && Locomotive.Train.ControlModeBeforeOutOfControl == Train.TRAIN_CONTROL.EXPLORER)
-                    {
-                        Trace.TraceWarning("RequestToggleManualMode() is deprecated for explorer mode. Please use ResetOutOfControlMode() instead");
-                        Locomotive.Train.ManualResetOutOfControlMode();
-                    }
-                    else Locomotive.Train.RequestToggleManualMode();
-                };
-                Script.ResetOutOfControlMode = () => Locomotive.Train.ManualResetOutOfControlMode();
-
-                // TrainControlSystem INI configuration file
-                Script.GetBoolParameter = (arg1, arg2, arg3) => LoadParameter<bool>(arg1, arg2, arg3);
-                Script.GetIntParameter = (arg1, arg2, arg3) => LoadParameter<int>(arg1, arg2, arg3);
-                Script.GetFloatParameter = (arg1, arg2, arg3) => LoadParameter<float>(arg1, arg2, arg3);
-                Script.GetStringParameter = (arg1, arg2, arg3) => LoadParameter<string>(arg1, arg2, arg3);
 
                 Script.AttachToHost(this);
                 Script.Initialize();
@@ -662,7 +382,7 @@ namespace Orts.Simulation.RollingStocks.SubSystems
             Script?.InitializeMoving();
         }
 
-        private Aspect NextNormalSignalDistanceHeadsAspect()
+        public Aspect NextNormalSignalDistanceHeadsAspect()
         {
             var signal = Locomotive.Train.NextSignalObject[Locomotive.Train.MUDirection == Direction.Reverse ? 1 : 0];
             Aspect distanceSignalAspect = Aspect.None;
@@ -679,7 +399,7 @@ namespace Orts.Simulation.RollingStocks.SubSystems
             return distanceSignalAspect;
         }
 
-        private bool DoesNextNormalSignalHaveTwoAspects()
+        public bool DoesNextNormalSignalHaveTwoAspects()
             // ...and the two aspects of each head are STOP and ( CLEAR_2 or CLEAR_1 or RESTRICTING)
         {
             var signal = Locomotive.Train.NextSignalObject[Locomotive.Train.MUDirection == Direction.Reverse ? 1 : 0];
@@ -704,7 +424,7 @@ namespace Orts.Simulation.RollingStocks.SubSystems
             return true;
         }
 
-        T NextGenericSignalItem<T>(int itemSequenceIndex, ref T retval, float maxDistanceM, Train.TrainObjectItem.TRAINOBJECTTYPE type, string signalTypeName = "UNKNOWN")
+        public T NextGenericSignalItem<T>(int itemSequenceIndex, ref T retval, float maxDistanceM, Train.TrainObjectItem.TRAINOBJECTTYPE type, string signalTypeName = "UNKNOWN")
         {
             var item = NextGenericSignalFeatures(signalTypeName, itemSequenceIndex, maxDistanceM, type);
             MainHeadSignalTypeName = item.MainHeadSignalTypeName;
@@ -714,7 +434,7 @@ namespace Orts.Simulation.RollingStocks.SubSystems
             return retval;
         }
 
-        SignalFeatures NextGenericSignalFeatures(string signalFunctionTypeName, int itemSequenceIndex, float maxDistanceM, Train.TrainObjectItem.TRAINOBJECTTYPE type)
+        public SignalFeatures NextGenericSignalFeatures(string signalFunctionTypeName, int itemSequenceIndex, float maxDistanceM, Train.TrainObjectItem.TRAINOBJECTTYPE type)
         {
             var mainHeadSignalTypeName = "";
             var signalTypeName = "";
@@ -799,7 +519,7 @@ namespace Orts.Simulation.RollingStocks.SubSystems
                 altitudeM: altitudeM, textAspect: textAspect);
         }
 
-        SpeedPostFeatures NextSpeedPostFeatures(int itemSequenceIndex, float maxDistanceM)
+        public SpeedPostFeatures NextSpeedPostFeatures(int itemSequenceIndex, float maxDistanceM)
         {
             var speedPostTypeName = "";
             var isWarning = false;
@@ -836,7 +556,7 @@ namespace Orts.Simulation.RollingStocks.SubSystems
                 altitudeM: altitudeM);
         }
 
-        private bool DoesNextNormalSignalHaveRepeaterHead()
+        public bool DoesNextNormalSignalHaveRepeaterHead()
         {
             var signal = Locomotive.Train.NextSignalObject[Locomotive.Train.MUDirection == Direction.Reverse ? 1 : 0];
             if (signal != null)
@@ -850,7 +570,7 @@ namespace Orts.Simulation.RollingStocks.SubSystems
             return false;
         }
 
-        private bool DoesStartFromTerminalStation()
+        public bool DoesStartFromTerminalStation()
         {
             var tempTraveller = new Traveller(Locomotive.Train.RearTDBTraveller);
             tempTraveller.ReverseDirection();
@@ -870,7 +590,7 @@ namespace Orts.Simulation.RollingStocks.SubSystems
             }
         }
 
-        private static float SpeedCurve(float targetDistanceM, float targetSpeedMpS, float slope, float delayS, float decelerationMpS2)
+        public static float SpeedCurve(float targetDistanceM, float targetSpeedMpS, float slope, float delayS, float decelerationMpS2)
         {
             if (targetSpeedMpS < 0)
                 targetSpeedMpS = 0;
@@ -886,7 +606,7 @@ namespace Orts.Simulation.RollingStocks.SubSystems
             return (float)Math.Sqrt(squareSpeedComponent) - speedComponent;
         }
 
-        private static float DistanceCurve(float currentSpeedMpS, float targetSpeedMpS, float slope, float delayS, float decelerationMpS2)
+        public static float DistanceCurve(float currentSpeedMpS, float targetSpeedMpS, float slope, float delayS, float decelerationMpS2)
         {
             if (targetSpeedMpS < 0)
                 targetSpeedMpS = 0;
@@ -899,7 +619,7 @@ namespace Orts.Simulation.RollingStocks.SubSystems
             return brakingDistanceM + delayDistanceM;
         }
 
-        private static float Deceleration(float currentSpeedMpS, float targetSpeedMpS, float distanceM)
+        public static float Deceleration(float currentSpeedMpS, float targetSpeedMpS, float distanceM)
         {
             return (currentSpeedMpS - targetSpeedMpS) * (currentSpeedMpS + targetSpeedMpS) / (2 * distanceM);
         }
@@ -1344,7 +1064,7 @@ namespace Orts.Simulation.RollingStocks.SubSystems
         }
 
         // Provide basic functionality for ETCS DMI planning area
-        private void UpdateETCSPlanning()
+        protected void UpdateETCSPlanning()
         {
             float maxDistanceAheadM = 0;
             ETCSStatus.SpeedTargets.Clear();
