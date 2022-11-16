@@ -16,6 +16,7 @@
 // along with Open Rails.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using Orts.Common;
 using Orts.Simulation.RollingStocks.SubSystems;
@@ -23,6 +24,9 @@ using ORTS.Common;
 using ORTS.Scripting.Api.ETCS;
 using Orts.Simulation;
 using Orts.Simulation.RollingStocks;
+using Orts.Simulation.Physics;
+using Orts.Simulation.RollingStocks.SubSystems.PowerSupplies;
+using Orts.Simulation.RollingStocks.SubSystems.Brakes.MSTS;
 
 namespace ORTS.Scripting.Api
 {
@@ -44,513 +48,827 @@ namespace ORTS.Scripting.Api
         /// <summary>
         /// True if train control is switched on (the locomotive is the lead locomotive and the train is not autopiloted).
         /// </summary>
-        public Func<bool> IsTrainControlEnabled;
+        protected bool IsTrainControlEnabled() => Locomotive == Locomotive.Train.LeadLocomotive && Locomotive.Train.TrainType != Train.TRAINTYPE.AI_PLAYERHOSTING;
+
         /// <summary>
         /// True if train is autopiloted
         /// </summary>
-        public Func<bool> IsAutopiloted;
+        protected bool IsAutopiloted() => Locomotive == Simulator.PlayerLocomotive && Locomotive.Train.TrainType == Train.TRAINTYPE.AI_PLAYERHOSTING;
+
         /// <summary>
         /// True if vigilance monitor was switched on in game options.
         /// </summary>
-        public Func<bool> IsAlerterEnabled;
+        protected bool IsAlerterEnabled() => Simulator.Settings.Alerter && !(Simulator.Settings.AlerterDisableExternal && !Simulator.PlayerIsInCab);
+
         /// <summary>
         /// True if speed control was switched on in game options.
         /// </summary>
-        public Func<bool> IsSpeedControlEnabled;
+        protected bool IsSpeedControlEnabled() => Simulator.Settings.SpeedControl;
+
         /// <summary>
         /// True if low voltage power supply is switched on.
         /// </summary>
-        public Func<bool> IsLowVoltagePowerSupplyOn;
+        protected bool IsLowVoltagePowerSupplyOn() => Locomotive.LocomotivePowerSupply.CabPowerSupplyOn;
+
         /// <summary>
         /// True if cab power supply is switched on.
         /// </summary>
-        public Func<bool> IsCabPowerSupplyOn;
+        protected bool IsCabPowerSupplyOn() => Locomotive.LocomotivePowerSupply.CabPowerSupplyOn;
+
         /// <summary>
         /// True if alerter sound rings, otherwise false
         /// </summary>
-        public Func<bool> AlerterSound;
+        protected bool AlerterSound() => Locomotive.AlerterSnd;
+
         /// <summary>
         /// Max allowed speed for the train in that moment.
         /// </summary>
-        public Func<float> TrainSpeedLimitMpS;
+        protected float TrainSpeedLimitMpS() => Math.Min(Locomotive.Train.AllowedMaxSpeedMpS, Locomotive.Train.TrainMaxSpeedMpS);
+
         /// <summary>
         /// Max allowed speed for the train basing on consist and route max speed.
         /// </summary>
-        public Func<float> TrainMaxSpeedMpS;
+        protected float TrainMaxSpeedMpS() => Locomotive.Train.TrainMaxSpeedMpS;
+
         /// <summary>
         /// Max allowed speed determined by current signal.
         /// </summary>
-        public Func<float> CurrentSignalSpeedLimitMpS;
+        protected float CurrentSignalSpeedLimitMpS() => Locomotive.Train.allowedMaxSpeedSignalMpS;
+
         /// <summary>
         /// Max allowed speed determined by next signal.
         /// </summary>
-        public Func<int, float> NextSignalSpeedLimitMpS;
+        protected float NextSignalSpeedLimitMpS(int itemSequenceIndex) => Host.NextGenericSignalItem(itemSequenceIndex, ref Host.ItemSpeedLimit, float.MaxValue, Train.TrainObjectItem.TRAINOBJECTTYPE.SIGNAL, "NORMAL");
+
         /// <summary>
         /// Aspect of the next signal.
         /// </summary>
-        public Func<int, Aspect> NextSignalAspect;
+        protected Aspect NextSignalAspect(int itemSequenceIndex) => Host.NextGenericSignalItem(itemSequenceIndex, ref Host.ItemAspect, float.MaxValue, Train.TrainObjectItem.TRAINOBJECTTYPE.SIGNAL, "NORMAL");
+
         /// <summary>
         /// Distance to next signal.
         /// </summary>
-        public Func<int, float> NextSignalDistanceM;
+        protected float NextSignalDistanceM(int itemSequenceIndex) => Host.NextGenericSignalItem(itemSequenceIndex, ref Host.ItemDistance, float.MaxValue, Train.TrainObjectItem.TRAINOBJECTTYPE.SIGNAL, "NORMAL");
+
         /// <summary>
         /// Aspect of the DISTANCE heads of next NORMAL signal.
         /// </summary>
-        public Func<Aspect> NextNormalSignalDistanceHeadsAspect;
+        protected Aspect NextNormalSignalDistanceHeadsAspect() => Host.NextNormalSignalDistanceHeadsAspect();
+
         /// <summary>
         /// Next normal signal has only two aspects (STOP and CLEAR_2).
         /// </summary>
-        public Func<bool> DoesNextNormalSignalHaveTwoAspects;
+        protected bool DoesNextNormalSignalHaveTwoAspects() => Host.DoesNextNormalSignalHaveTwoAspects();
+
         /// <summary>
         /// Aspect of the next DISTANCE signal.
         /// </summary>
-        public Func<Aspect> NextDistanceSignalAspect;
+        protected Aspect NextDistanceSignalAspect()
+            => Host.NextGenericSignalItem(0, ref Host.ItemAspect, ScriptedTrainControlSystem.GenericItemDistance, Train.TrainObjectItem.TRAINOBJECTTYPE.SIGNAL, "DISTANCE");
+
         /// <summary>
         /// Distance to next DISTANCE signal.
         /// </summary>
-        public Func<float> NextDistanceSignalDistanceM;
+        protected float NextDistanceSignalDistanceM() =>
+            Host.NextGenericSignalItem(0, ref Host.ItemDistance, ScriptedTrainControlSystem.GenericItemDistance, Train.TrainObjectItem.TRAINOBJECTTYPE.SIGNAL, "DISTANCE");
+
         /// <summary>
         /// Signal type of main head of hext generic signal. Not for NORMAL signals
         /// </summary>
-        public Func<string, string> NextGenericSignalMainHeadSignalType;
+        protected string NextGenericSignalMainHeadSignalType(string type) =>
+            Host.NextGenericSignalItem(0, ref Host.MainHeadSignalTypeName, ScriptedTrainControlSystem.GenericItemDistance, Train.TrainObjectItem.TRAINOBJECTTYPE.SIGNAL, type);
+
         /// <summary>
         /// Aspect of the next generic signal. Not for NORMAL signals
         /// </summary>
-        public Func<string, Aspect> NextGenericSignalAspect;
+        protected Aspect NextGenericSignalAspect(string type) =>
+            Host.NextGenericSignalItem(0, ref Host.ItemAspect, ScriptedTrainControlSystem.GenericItemDistance, Train.TrainObjectItem.TRAINOBJECTTYPE.SIGNAL, type);
+
         /// <summary>
         /// Distance to next generic signal. Not for NORMAL signals
         /// </summary>
-        public Func<string, float> NextGenericSignalDistanceM;
+        protected float NextGenericSignalDistanceM(string type) =>
+            Host.NextGenericSignalItem(0, ref Host.ItemDistance, ScriptedTrainControlSystem.GenericItemDistance, Train.TrainObjectItem.TRAINOBJECTTYPE.SIGNAL, type);
+
         /// <summary>
         /// Features of next generic signal. 
         /// string: signal type (DISTANCE etc.)
         /// int: position of signal in the signal sequence along the train route, starting from train front; 0 for first signal;
         /// float: max testing distance
         /// </summary>
-        public Func<string, int, float, SignalFeatures> NextGenericSignalFeatures;
+        protected SignalFeatures NextGenericSignalFeatures(string signalTypeName, int itemSequenceIndex, float maxDistanceM) =>
+            Host.NextGenericSignalFeatures(signalTypeName, itemSequenceIndex, maxDistanceM, Train.TrainObjectItem.TRAINOBJECTTYPE.SIGNAL);
+
         /// <summary>
         /// Features of next speed post
         /// int: position of speed post in the speed post sequence along the train route, starting from train front; 0 for first speed post;
         /// float: max testing distance
         /// </summary>
-        public Func<int, float, SpeedPostFeatures> NextSpeedPostFeatures;
+        protected SpeedPostFeatures NextSpeedPostFeatures(int itemSequenceIndex, float maxDistanceM) => Host.NextSpeedPostFeatures(itemSequenceIndex, maxDistanceM);
+
         /// <summary>
         /// Next normal signal has a repeater head
         /// </summary>
-        public Func<bool> DoesNextNormalSignalHaveRepeaterHead;
+        protected bool DoesNextNormalSignalHaveRepeaterHead() => Host.DoesNextNormalSignalHaveRepeaterHead();
+
         /// <summary>
         /// Max allowed speed determined by current speedpost.
         /// </summary>
-        public Func<float> CurrentPostSpeedLimitMpS;
+        protected float CurrentPostSpeedLimitMpS() => Locomotive.Train.allowedMaxSpeedLimitMpS;
+
         /// <summary>
         /// Max allowed speed determined by next speedpost.
         /// </summary>
-        public Func<int, float> NextPostSpeedLimitMpS;
+        protected float NextPostSpeedLimitMpS(int itemSequenceIndex) => 
+            Host.NextGenericSignalItem(itemSequenceIndex, ref Host.ItemSpeedLimit, float.MaxValue, Train.TrainObjectItem.TRAINOBJECTTYPE.SPEEDPOST);
+
         /// <summary>
         /// Distance to next speedpost.
         /// </summary>
-        public Func<int, float> NextPostDistanceM;
+        protected float NextPostDistanceM(int itemSequenceIndex) =>
+            Host.NextGenericSignalItem(itemSequenceIndex, ref Host.ItemDistance, float.MaxValue, Train.TrainObjectItem.TRAINOBJECTTYPE.SPEEDPOST);
+
         /// <summary>
         /// Distance and length of next tunnels
         /// int: position of tunnel along the train route, starting from train front; 0 for first tunnel;
         /// If train is in tunnel, index 0 will contain the remaining length of the tunnel
         /// </summary>
-        public Func<int, TunnelInfo> NextTunnel;
+        protected TunnelInfo NextTunnel(int itemSequenceIndex)
+        {
+            var list = Locomotive.Train.PlayerTrainTunnels[Locomotive.Train.MUDirection == Direction.Reverse ? 1 : 0];
+            if (list == null || itemSequenceIndex >= list.Count) return new TunnelInfo(float.MaxValue, -1);
+            return new TunnelInfo(list[itemSequenceIndex].DistanceToTrainM, list[itemSequenceIndex].StationPlatformLength);
+        }
+
         /// <summary>
         /// Distance and value of next mileposts
         /// int: return nth milepost ahead; 0 for first milepost
         /// </summary>
-        public Func<int, MilepostInfo> NextMilepost;
+        protected MilepostInfo NextMilepost(int itemSequenceIndex)
+        {
+            var list = Locomotive.Train.PlayerTrainMileposts[Locomotive.Train.MUDirection == Direction.Reverse ? 1 : 0];
+            if (list == null || itemSequenceIndex >= list.Count) return new MilepostInfo(float.MaxValue, -1);
+            return new MilepostInfo(list[itemSequenceIndex].DistanceToTrainM, float.Parse(list[itemSequenceIndex].ThisMile));
+        }
+
         /// <summary>
         /// Distance to end of authority.
         /// int: direction; 0: forwards; 1: backwards
         /// </summary>
-        public Func<int, float> EOADistanceM;
+        protected float EOADistanceM(int direction) => Locomotive.Train.DistanceToEndNodeAuthorityM[direction];
+
         /// <summary>
         /// Train's length
         /// </summary>
-        public Func<float> TrainLengthM;
+        protected float TrainLengthM() => Locomotive.Train != null ? Locomotive.Train.Length : 0f;
+
         /// <summary>
         /// Locomotive direction.
         /// </summary>
-        public Func<Direction> CurrentDirection;
+        protected Direction CurrentDirection() => Locomotive.Direction;
+
         /// <summary>
         /// True if locomotive direction is forward.
         /// </summary>
-        public Func<bool> IsDirectionForward;
+        protected bool IsDirectionForward() => Locomotive.Direction == Direction.Forward;
+
         /// <summary>
         /// True if locomotive direction is neutral.
         /// </summary>
-        public Func<bool> IsDirectionNeutral;
+        protected bool IsDirectionNeutral() => Locomotive.Direction == Direction.N;
+
         /// <summary>
         /// True if locomotive direction is reverse.
         /// </summary>
-        public Func<bool> IsDirectionReverse;
+        protected bool IsDirectionReverse() => Locomotive.Direction == Direction.Reverse;
+
         /// <summary>
         /// Train direction.
         /// </summary>
-        public Func<Direction> CurrentTrainMUDirection;
+        protected Direction CurrentTrainMUDirection() => Locomotive.Train.MUDirection;
+
         /// <summary>
         /// True if locomotive is flipped.
         /// </summary>
-        public Func<bool> IsFlipped;
+        protected bool IsFlipped() => Locomotive.Flipped;
+
         /// <summary>
         /// True if player is in rear cab.
         /// </summary>
-        public Func<bool> IsRearCab;
+        protected bool IsRearCab() => Locomotive.UsingRearCab;
+
         /// <summary>
         /// True if train brake controller is in emergency position, otherwise false.
         /// </summary>
-        public Func<bool> IsBrakeEmergency;
+        protected bool IsBrakeEmergency() => Locomotive.TrainBrakeController.EmergencyBraking;
+
         /// <summary>
         /// True if train brake controller is in full service position, otherwise false.
         /// </summary>
-        public Func<bool> IsBrakeFullService;
+        protected bool IsBrakeFullService() => Locomotive.TrainBrakeController.TCSFullServiceBraking;
+
         /// <summary>
         /// True if circuit breaker or power contactor closing authorization is true.
         /// </summary>
-        public Func<bool> PowerAuthorization;
+        protected bool PowerAuthorization() => Host.PowerAuthorization;
+
         /// <summary>
         /// True if circuit breaker or power contactor closing order is true.
         /// </summary>
-        public Func<bool> CircuitBreakerClosingOrder;
+        protected bool CircuitBreakerClosingOrder() => Host.CircuitBreakerClosingOrder;
+
         /// <summary>
         /// True if circuit breaker or power contactor opening order is true.
         /// </summary>
-        public Func<bool> CircuitBreakerOpeningOrder;
-         /// <summary>
+        protected bool CircuitBreakerOpeningOrder() => Host.CircuitBreakerOpeningOrder;
+
+        /// <summary>
         /// Returns the number of pantographs on the locomotive.
         /// </summary>
-        public Func<int> PantographCount;
+        protected int PantographCount() => Locomotive.Pantographs.Count;
+
         /// <summary>
         /// Checks the state of any pantograph
         /// int: pantograph ID (1 for first pantograph)
         /// </summary>
-        public Func<int, PantographState> GetPantographState;
+        protected PantographState GetPantographState(int pantoID)
+        {
+            if (pantoID >= Pantographs.MinPantoID && pantoID <= Pantographs.MaxPantoID)
+            {
+                return Locomotive.Pantographs[pantoID].State;
+            }
+            else
+            {
+                Trace.TraceError($"TCS script used bad pantograph ID {pantoID}");
+                return PantographState.Down;
+            }
+        }
+
         /// <summary>
         /// True if all pantographs are down.
         /// </summary>
-        public Func<bool> ArePantographsDown;
+        protected bool ArePantographsDown() => Locomotive.Pantographs.State == PantographState.Down;
+
         /// <summary>
         /// Returns throttle percent
         /// </summary>
-        public Func<float> ThrottlePercent;
+        protected float ThrottlePercent() => Locomotive.ThrottleController.CurrentValue * 100;
+
         /// <summary>
         /// Returns maximum throttle percent
         /// </summary>
-        public Func<float> MaxThrottlePercent;
+        protected float MaxThrottlePercent() => Host.MaxThrottlePercent;
+
         /// <summary>
         /// Returns dynamic brake percent
         /// </summary>
-        public Func<float> DynamicBrakePercent;
+        protected float DynamicBrakePercent() => Locomotive.DynamicBrakeController?.CurrentValue * 100 ?? 0;
+
         /// <summary>
         /// True if traction is authorized.
         /// </summary>
-        public Func<bool> TractionAuthorization;
+        protected bool TractionAuthorization() => Host.TractionAuthorization;
+
         /// <summary>
         /// Train brake pipe pressure. Returns float.MaxValue if no data is available.
         /// For vacuum brake system, the pressure is considered as absolute.
         /// </summary>
-        public Func<float> BrakePipePressureBar;
+        protected float BrakePipePressureBar() => Locomotive.BrakeSystem != null ? Bar.FromPSI(Locomotive.BrakeSystem.BrakeLine1PressurePSI) : float.MaxValue;
+
         /// <summary>
         /// Locomotive brake cylinder pressure. Returns float.MaxValue if no data is available.
         /// </summary>
-        public Func<float> LocomotiveBrakeCylinderPressureBar;
+        protected float LocomotiveBrakeCylinderPressureBar() => Locomotive.BrakeSystem != null ? Bar.FromPSI(Locomotive.BrakeSystem.GetCylPressurePSI()) : float.MaxValue;
+
         /// <summary>
         /// True if power must be cut if the pneumatic brake is applied.
         /// </summary>
-        public Func<bool> DoesBrakeCutPower;
+        protected bool DoesBrakeCutPower() => Host.DoesBrakeCutPower;
+
         /// <summary>
         /// True if power must be cut if the vacuum brake is applied.
         /// </summary>
-        public Func<bool> DoesVacuumBrakeCutPower;
+        protected bool DoesVacuumBrakeCutPower() => Host.DoesVacuumBrakeCutPower;
+
         /// <summary>
         /// Brake cylinder pressure value which triggers the power cut-off.
         /// </summary>
-        public Func<float> BrakeCutsPowerAtBrakeCylinderPressureBar;
+        protected float BrakeCutsPowerAtBrakeCylinderPressureBar() => Bar.FromPSI(Host.BrakeCutsPowerAtBrakeCylinderPressurePSI);
+
         /// <summary>
         /// Brake pipe pressure value which triggers the power cut-off.
         /// For vacuum brake system, the pressure is considered as absolute.
         /// </summary>
-        public Func<float> BrakeCutsPowerAtBrakePipePressureBar;
+        protected float BrakeCutsPowerAtBrakePipePressureBar() =>
+            Locomotive.BrakeSystem is VacuumSinglePipe
+                ? Bar.FromPSI(VacuumSinglePipe.OneAtmospherePSI - Host.BrakeCutsPowerAtBrakePipePressurePSI)
+                : Bar.FromPSI(Host.BrakeCutsPowerAtBrakePipePressurePSI);
+
         /// <summary>
         /// Brake pipe pressure value which cancels the power cut-off.
         /// For vacuum brake system, the pressure is considered as absolute.
         /// </summary>
-        public Func<float> BrakeRestoresPowerAtBrakePipePressureBar;
+        protected float BrakeRestoresPowerAtBrakePipePressureBar() =>
+            Locomotive.BrakeSystem is VacuumSinglePipe
+                ? Bar.FromPSI(VacuumSinglePipe.OneAtmospherePSI - Host.BrakeRestoresPowerAtBrakePipePressurePSI)
+                : Bar.FromPSI(Host.BrakeRestoresPowerAtBrakePipePressurePSI);
+
         /// <summary>
         /// Train speed above which the power cut-off may be enabled.
         /// </summary>
-        public Func<float> BrakeCutsPowerForMinimumSpeedMpS;
+        protected float BrakeCutsPowerForMinimumSpeedMpS() => Host.BrakeCutsPowerForMinimumSpeedMpS;
+
         /// <summary>
         /// True if traction cut-off cancellation needs for the throttle to be at zero or in dynamic brake position.
         /// </summary>
-        public Func<bool> BrakeCutsPowerUntilTractionCommandCancelled;
+        protected bool BrakeCutsPowerUntilTractionCommandCancelled() => Host.BrakeCutsPowerUntilTractionCommandCancelled;
+
         /// <summary>
         /// Type of behaviour for traction cut-off when brakes are applied.
         /// </summary>
-        public Func<BrakeTractionCutOffModeType> BrakeTractionCutOffMode;
+        protected BrakeTractionCutOffModeType BrakeTractionCutOffMode() => Host.BrakeTractionCutOffMode;
+
         /// <summary>
         /// State of the train brake controller.
         /// </summary>
-        public Func<ControllerState> TrainBrakeControllerState;
+        protected ControllerState TrainBrakeControllerState() => Locomotive.TrainBrakeController.TrainBrakeControllerState;
+
         /// <summary>
         /// Locomotive acceleration.
         /// </summary>
-        public Func<float> AccelerationMpSS;
+        protected float AccelerationMpSS() => Locomotive.AccelerationMpSS;
+
         /// <summary>
         /// Locomotive altitude.
         /// </summary>
-        public Func<float> AltitudeM;
+        protected float AltitudeM() => Locomotive.WorldPosition.Location.Y;
+
         /// <summary>
         /// Track gradient percent at the locomotive's location (positive = uphill).
         /// </summary>
-        public Func<float> CurrentGradientPercent;
+        protected float CurrentGradientPercent() => -Locomotive.CurrentElevationPercent;
+
         /// <summary>
         /// Line speed taken from .trk file.
         /// </summary>
-        public Func<float> LineSpeedMpS;
+        protected float LineSpeedMpS() => (float)Simulator.TRK.Tr_RouteFile.SpeedLimit;
+
         /// <summary>
         /// Running total of distance travelled - negative or positive depending on train direction
         /// </summary>
-        public Func<float> SignedDistanceM;
+        protected float SignedDistanceM() => Locomotive.Train.DistanceTravelledM;
+
         /// <summary>
         /// True if starting from terminal station (no track behind the train).
         /// </summary>
-        public Func<bool> DoesStartFromTerminalStation;
+        protected bool DoesStartFromTerminalStation() => Host.DoesStartFromTerminalStation();
+
         /// <summary>
         /// True if game just started and train speed = 0.
         /// </summary>
-        public Func<bool> IsColdStart;
+        protected bool IsColdStart() => Locomotive.Train.ColdStart;
+
         /// <summary>
         /// Get front traveller track node offset.
         /// </summary>
-        public Func<float> GetTrackNodeOffset;
+        protected float GetTrackNodeOffset() => Locomotive.Train.FrontTDBTraveller.TrackNodeLength - Locomotive.Train.FrontTDBTraveller.TrackNodeOffset;
+
         /// <summary>
         /// Search next diverging switch distance
         /// </summary>
-        public Func<float, float> NextDivergingSwitchDistanceM;
+        protected float NextDivergingSwitchDistanceM(float maxDistanceM)
+        {
+            var list = Locomotive.Train.PlayerTrainDivergingSwitches[Locomotive.Train.MUDirection == Direction.Reverse ? 1 : 0, 0];
+            if (list == null || list.Count == 0 || list[0].DistanceToTrainM > maxDistanceM) return float.MaxValue;
+            return list[0].DistanceToTrainM;
+        }
+
         /// <summary>
         /// Search next trailing diverging switch distance
         /// </summary>
-        public Func<float, float> NextTrailingDivergingSwitchDistanceM;
+        protected float NextTrailingDivergingSwitchDistanceM(float maxDistanceM)
+        {
+            var list = Locomotive.Train.PlayerTrainDivergingSwitches[Locomotive.Train.MUDirection == Direction.Reverse ? 1 : 0, 1];
+            if (list == null || list.Count == 0 || list[0].DistanceToTrainM > maxDistanceM) return float.MaxValue;
+            return list[0].DistanceToTrainM;
+        }
+
         /// <summary>
         /// Get Control Mode of player train
         /// </summary>
-        public Func<TRAIN_CONTROL> GetControlMode;
+        protected TRAIN_CONTROL GetControlMode() => (TRAIN_CONTROL)(int)Locomotive.Train.ControlMode;
+
         /// <summary>
         /// Get name of next station if any, else empty string
         /// </summary>
-        public Func<string> NextStationName;
+        protected string NextStationName() =>
+            Locomotive.Train.StationStops != null && Locomotive.Train.StationStops.Count > 0
+                ? Locomotive.Train.StationStops[0].PlatformItem.Name
+                : "";
+
         /// <summary>
         /// Get distance of next station if any, else max float value
         /// </summary>
-        public Func<float> NextStationDistanceM;
+        protected float NextStationDistanceM() =>
+            Locomotive.Train.StationStops != null && Locomotive.Train.StationStops.Count > 0
+                ? Locomotive.Train.StationStops[0].DistanceToTrainM
+                : float.MaxValue;
 
         /// <summary>
         /// (float targetDistanceM, float targetSpeedMpS, float slope, float delayS, float decelerationMpS2)
         /// Returns a speed curve based speed limit, unit is m/s
         /// </summary>
-        public Func<float, float, float, float, float, float> SpeedCurve;
+        protected float SpeedCurve(float targetDistanceM, float targetSpeedMpS, float slope, float delayS, float decelerationMpS2) =>
+            ScriptedTrainControlSystem.SpeedCurve(targetDistanceM, targetSpeedMpS, slope, delayS, decelerationMpS2);
+
         /// <summary>
         /// (float currentSpeedMpS, float targetSpeedMpS, float slope, float delayS, float decelerationMpS2)
         /// Returns a distance curve based safe braking distance, unit is m
         /// </summary>
-        public Func<float, float, float, float, float, float> DistanceCurve;
+        protected float DistanceCurve(float currentSpeedMpS, float targetSpeedMpS, float slope, float delayS, float decelerationMpS2) =>
+            ScriptedTrainControlSystem.DistanceCurve(currentSpeedMpS, targetSpeedMpS, slope, delayS, decelerationMpS2);
+
         /// <summary>
         /// (float currentSpeedMpS, float targetSpeedMpS, float distanceM)
         /// Returns the deceleration needed to decrease the speed to the target speed at the target distance
         /// </summary>
-        public Func<float, float, float, float> Deceleration;
+        protected float Deceleration(float currentSpeedMpS, float targetSpeedMpS, float distanceM) =>
+            ScriptedTrainControlSystem.Deceleration(currentSpeedMpS, targetSpeedMpS, distanceM);
 
         /// <summary>
         /// Set train brake controller to full service position.
         /// </summary>
-        public Action<bool> SetFullBrake;
+        protected void SetFullBrake(bool value)
+        {
+            if (Locomotive.TrainBrakeController.TCSFullServiceBraking != value)
+            {
+                Locomotive.TrainBrakeController.TCSFullServiceBraking = value;
+
+                //Debrief Eval
+                if (value && Locomotive.IsPlayerTrain && !Host.ldbfevalfullbrakeabove16kmh && Math.Abs(Locomotive.SpeedMpS) > 4.44444)
+                {
+                    var train = Simulator.PlayerLocomotive.Train;//Debrief Eval
+                    ScriptedTrainControlSystem.DbfevalFullBrakeAbove16kmh++;
+                    Host.ldbfevalfullbrakeabove16kmh = true;
+                    train.DbfEvalValueChanged = true;//Debrief eval
+                }
+                if (!value)
+                    Host.ldbfevalfullbrakeabove16kmh = false;
+            }
+        }
+
         /// <summary>
         /// Set emergency braking on or off.
         /// </summary>
-        public Action<bool> SetEmergencyBrake;
+        protected void SetEmergencyBrake(bool value)
+        {
+            if (Locomotive.TrainBrakeController.TCSEmergencyBraking != value)
+                Locomotive.TrainBrakeController.TCSEmergencyBraking = value;
+        }
+
         /// Set full dynamic braking on or off.
         /// </summary>
-        public Action<bool> SetFullDynamicBrake;
+        protected void SetFullDynamicBrake(bool value) => Host.FullDynamicBrakingOrder = value;
+
         /// <summary>
         /// Set throttle controller to position in range [0-1].
         /// </summary>
-        public Action<float> SetThrottleController;
+        protected void SetThrottleController(float value) => Locomotive.ThrottleController.SetValue(value);
+
         /// <summary>
         /// Set dynamic brake controller to position in range [0-1].
         /// </summary>
-        public Action<float> SetDynamicBrakeController;
+        protected void SetDynamicBrakeController(float value)
+        {
+            if (Locomotive.DynamicBrakeController == null)
+                return;
+
+            Locomotive.DynamicBrakeChangeActiveState(value > 0);
+            Locomotive.DynamicBrakeController.SetValue(value);
+        }
+
         /// <summary>
         /// Cut power by pull all pantographs down.
         /// </summary>
-        public Action SetPantographsDown;
+        protected void SetPantographsDown()
+        {
+            if (Locomotive.Pantographs.State == PantographState.Up)
+            {
+                Locomotive.Train.SignalEvent(PowerSupplyEvent.LowerPantograph);
+            }
+        }
+
         /// <summary>
         /// Raise specified pantograph
         /// int: pantographID, from 1 to 4
         /// </summary>
-        public Action<int> SetPantographUp;
+        protected void SetPantographUp(int pantoID)
+        {
+            if (pantoID < Pantographs.MinPantoID || pantoID > Pantographs.MaxPantoID)
+            {
+                Trace.TraceError($"TCS script used bad pantograph ID {pantoID}");
+                return;
+            }
+            Locomotive.Train.SignalEvent(PowerSupplyEvent.RaisePantograph, pantoID);
+        }
+
         /// <summary>
         /// Lower specified pantograph
         /// int: pantographID, from 1 to 4
         /// </summary>
-        public Action<int> SetPantographDown;
+        protected void SetPantographDown(int pantoID)
+        {
+            if (pantoID<Pantographs.MinPantoID || pantoID> Pantographs.MaxPantoID)
+            {
+                Trace.TraceError($"TCS script used bad pantograph ID {pantoID}");
+                return;
+            }
+            Locomotive.Train.SignalEvent(PowerSupplyEvent.LowerPantograph, pantoID);
+        }
+
         /// <summary>
         /// Set the circuit breaker or power contactor closing authorization.
         /// </summary>
-        public Action<bool> SetPowerAuthorization;
+        protected void SetPowerAuthorization(bool value) => Host.PowerAuthorization = value;
+
         /// <summary>
         /// Set the circuit breaker or power contactor closing order.
         /// </summary>
-        public Action<bool> SetCircuitBreakerClosingOrder;
+        protected void SetCircuitBreakerClosingOrder(bool value) => Host.CircuitBreakerClosingOrder = value;
+
         /// <summary>
         /// Set the circuit breaker or power contactor opening order.
         /// </summary>
-        public Action<bool> SetCircuitBreakerOpeningOrder;
+        protected void SetCircuitBreakerOpeningOrder(bool value) => Host.CircuitBreakerOpeningOrder = value;
+
         /// <summary>
         /// Set the traction authorization.
         /// </summary>
-        public Action<bool> SetTractionAuthorization;
+        protected void SetTractionAuthorization(bool value) => Host.TractionAuthorization = value;
+
         /// <summary>
         /// Set the maximum throttle percent
         /// Range: 0 to 100
         /// </summary>
-        public Action<float> SetMaxThrottlePercent;
+        protected void SetMaxThrottlePercent(float value)
+        {
+            if (value >= 0 && value <= 100f)
+            {
+                Host.MaxThrottlePercent = value;
+            }
+        }
+
         /// <summary>
         /// Switch vigilance alarm sound on (true) or off (false).
         /// </summary>
-        public Action<bool> SetVigilanceAlarm;
+        protected void SetVigilanceAlarm(bool value) => Locomotive.SignalEvent(value ? Event.VigilanceAlarmOn : Event.VigilanceAlarmOff);
+
         /// <summary>
         /// Set horn on (true) or off (false).
         /// </summary>
-        public Action<bool> SetHorn;
+        protected void SetHorn(bool value) => Locomotive.TCSHorn = value;
+
         /// <summary>
         /// Trigger Alert1 sound event
         /// </summary>
-        public Action TriggerSoundAlert1;
+        protected void TriggerSoundAlert1() => Host.SignalEvent(Event.TrainControlSystemAlert1, this);
+
         /// <summary>
         /// Trigger Alert2 sound event
         /// </summary>
-        public Action TriggerSoundAlert2;
+        protected void TriggerSoundAlert2() => Host.SignalEvent(Event.TrainControlSystemAlert2, this);
+
         /// <summary>
         /// Trigger Info1 sound event
         /// </summary>
-        public Action TriggerSoundInfo1;
+        protected void TriggerSoundInfo1() => Host.SignalEvent(Event.TrainControlSystemInfo1, this);
+
         /// <summary>
         /// Trigger Info2 sound event
         /// </summary>
-        public Action TriggerSoundInfo2;
+        protected void TriggerSoundInfo2() => Host.SignalEvent(Event.TrainControlSystemInfo2, this);
+
         /// <summary>
         /// Trigger Penalty1 sound event
         /// </summary>
-        public Action TriggerSoundPenalty1;
+        protected void TriggerSoundPenalty1() => Host.SignalEvent(Event.TrainControlSystemPenalty1, this);
+
         /// <summary>
         /// Trigger Penalty2 sound event
         /// </summary>
-        public Action TriggerSoundPenalty2;
+        protected void TriggerSoundPenalty2() => Host.SignalEvent(Event.TrainControlSystemPenalty2, this);
+
         /// <summary>
         /// Trigger Warning1 sound event
         /// </summary>
-        public Action TriggerSoundWarning1;
+        protected void TriggerSoundWarning1() => Host.SignalEvent(Event.TrainControlSystemWarning1, this);
+
         /// <summary>
         /// Trigger Warning2 sound event
         /// </summary>
-        public Action TriggerSoundWarning2;
+        protected void TriggerSoundWarning2() => Host.SignalEvent(Event.TrainControlSystemWarning2, this);
+
         /// <summary>
         /// Trigger Activate sound event
         /// </summary>
-        public Action TriggerSoundSystemActivate;
+        protected void TriggerSoundSystemActivate() => Host.SignalEvent(Event.TrainControlSystemActivate, this);
+
         /// <summary>
         /// Trigger Deactivate sound event
         /// </summary>
-        public Action TriggerSoundSystemDeactivate;
+        protected void TriggerSoundSystemDeactivate() => Host.SignalEvent(Event.TrainControlSystemDeactivate, this);
+
         /// <summary>
         /// Trigger generic sound event
         /// </summary>
-        public Action<Event> TriggerGenericSound;
+        protected void TriggerGenericSound(Event value) => Host.SignalEvent(value, this);
+
         /// <summary>
         /// Set ALERTER_DISPLAY cabcontrol display's alarm state on or off.
         /// </summary>
-        public Action<bool> SetVigilanceAlarmDisplay;
+        protected void SetVigilanceAlarmDisplay(bool value) => Host.VigilanceAlarm = value;
+
         /// <summary>
         /// Set ALERTER_DISPLAY cabcontrol display's emergency state on or off.
         /// </summary>
-        public Action<bool> SetVigilanceEmergencyDisplay;
+        protected void SetVigilanceEmergencyDisplay(bool value) => Host.VigilanceEmergency = value;
+
         /// <summary>
         /// Set OVERSPEED cabcontrol display on or off.
         /// </summary>
-        public Action<bool> SetOverspeedWarningDisplay;
+        protected void SetOverspeedWarningDisplay(bool value) => Host.OverspeedWarning = value;
+
         /// <summary>
         /// Set PENALTY_APP cabcontrol display on or off.
         /// </summary>
-        public Action<bool> SetPenaltyApplicationDisplay;
+        protected void SetPenaltyApplicationDisplay(bool value) => Host.PenaltyApplication = value;
+
         /// <summary>
         /// Monitoring status determines the colors speeds displayed with. (E.g. circular speed gauge).
         /// </summary>
-        public Action<MonitoringStatus> SetMonitoringStatus;
+        protected void SetMonitoringStatus(MonitoringStatus value)
+        {
+            switch (value)
+            {
+                case MonitoringStatus.Normal:
+                case MonitoringStatus.Indication:
+                    ETCSStatus.CurrentMonitor = Monitor.CeilingSpeed;
+                    ETCSStatus.CurrentSupervisionStatus = SupervisionStatus.Normal;
+                    break;
+                case MonitoringStatus.Overspeed:
+                    ETCSStatus.CurrentMonitor = Monitor.TargetSpeed;
+                    ETCSStatus.CurrentSupervisionStatus = SupervisionStatus.Indication;
+                    break;
+                case MonitoringStatus.Warning:
+                    ETCSStatus.CurrentSupervisionStatus = SupervisionStatus.Overspeed;
+                    break;
+                case MonitoringStatus.Intervention:
+                    ETCSStatus.CurrentSupervisionStatus = SupervisionStatus.Intervention;
+                    break;
+            }
+        }
+
         /// <summary>
         /// Set current speed limit of the train, as to be shown on SPEEDLIMIT cabcontrol.
         /// </summary>
-        public Action<float> SetCurrentSpeedLimitMpS;
+        protected void SetCurrentSpeedLimitMpS(float value)
+        {
+            Host.CurrentSpeedLimitMpS = value;
+            ETCSStatus.AllowedSpeedMpS = value;
+        }
+
         /// <summary>
         /// Set speed limit of the next signal, as to be shown on SPEEDLIM_DISPLAY cabcontrol.
         /// </summary>
-        public Action<float> SetNextSpeedLimitMpS;
+        protected void SetNextSpeedLimitMpS(float value)
+        {
+            Host.NextSpeedLimitMpS = value;
+            ETCSStatus.TargetSpeedMpS = value;
+        }
+
         /// <summary>
         /// The speed at the train control system applies brake automatically.
         /// Determines needle color (orange/red) on circular speed gauge, when the locomotive
         /// already runs above the permitted speed limit. Otherwise is unused.
         /// </summary>
-        public Action<float> SetInterventionSpeedLimitMpS;
+        protected void SetInterventionSpeedLimitMpS(float value) => ETCSStatus.InterventionSpeedMpS = value;
+
         /// <summary>
         /// Will be whown on ASPECT_DISPLAY cabcontrol.
         /// </summary>
-        public Action<Aspect> SetNextSignalAspect;
+        protected void SetNextSignalAspect(Aspect value) => Host.CabSignalAspect = (TrackMonitorSignalAspect)value;
+
         /// <summary>
         /// Sets the value for a cabview control.
         /// </summary>
-        public Action<int, float> SetCabDisplayControl;
+        protected void SetCabDisplayControl(int id, float value) => Host.CabDisplayControls[id] = value;
+
         /// <summary>
         /// Sets the name which is to be shown which putting the cursor above a cabview control.
         /// DEPRECATED
         /// </summary>
-        public Action<string> SetCustomizedTCSControlString;
+        protected void SetCustomizedTCSControlString(string value)
+        {
+            if (Host.NextCabviewControlNameToEdit == 0)
+            {
+                Trace.TraceWarning("SetCustomizedTCSControlString is deprecated. Please use SetCustomizedCabviewControlName.");
+            }
+
+            if (Host.NextCabviewControlNameToEdit < ScriptedTrainControlSystem.TCSCabviewControlCount)
+            {
+                Host.CustomizedCabviewControlNames[Host.NextCabviewControlNameToEdit] = value;
+            }
+
+            Host.NextCabviewControlNameToEdit++;
+        }
+
         /// <summary>
         /// Sets the name which is to be shown which putting the cursor above a cabview control.
         /// </summary>
-        public Action<int, string> SetCustomizedCabviewControlName;
+        protected void SetCustomizedCabviewControlName(int id, string name)
+        {
+            if (id >= 0 && id < ScriptedTrainControlSystem.TCSCabviewControlCount)
+            {
+                Host.CustomizedCabviewControlNames[id] = name;
+            }
+        }
+
         /// <summary>
         /// Requests toggle to and from Manual Mode.
         /// </summary>
-        public Action RequestToggleManualMode;
+        protected void RequestToggleManualMode()
+        {
+            if (Locomotive.Train.ControlMode == Train.TRAIN_CONTROL.OUT_OF_CONTROL && Locomotive.Train.ControlModeBeforeOutOfControl == Train.TRAIN_CONTROL.EXPLORER)
+            {
+                Trace.TraceWarning("RequestToggleManualMode() is deprecated for explorer mode. Please use ResetOutOfControlMode() instead");
+                Locomotive.Train.ManualResetOutOfControlMode();
+            }
+            else Locomotive.Train.RequestToggleManualMode();
+        }
+
         /// <summary>
         /// Requests reset of Out of Control Mode.
         /// </summary>
-        public Action ResetOutOfControlMode;
+        protected void ResetOutOfControlMode() => Locomotive.Train.ManualResetOutOfControlMode();
+
         /// <summary>
         /// Get bool parameter in the INI file.
         /// </summary>
-        public Func<string, string, bool, bool> GetBoolParameter;
+        protected bool GetBoolParameter(string sectionName, string keyName, bool defaultValue) => LoadParameter(sectionName, keyName, defaultValue);
+
         /// <summary>
         /// Get int parameter in the INI file.
         /// </summary>
-        public Func<string, string, int, int> GetIntParameter;
+        protected int GetIntParameter(string sectionName, string keyName, int defaultValue) => LoadParameter(sectionName, keyName, defaultValue);
+
         /// <summary>
         /// Get int parameter in the INI file.
         /// </summary>
-        public Func<string, string, float, float> GetFloatParameter;
+        protected float GetFloatParameter(string sectionName, string keyName, float defaultValue) => LoadParameter(sectionName, keyName, defaultValue);
+
         /// <summary>
         /// Get string parameter in the INI file.
         /// </summary>
-        public Func<string, string, string, string> GetStringParameter;
+        protected string GetStringParameter(string sectionName, string keyName, string defaultValue) => LoadParameter(sectionName, keyName, defaultValue);
+
+        protected T LoadParameter<T>(string sectionName, string keyName, T defaultValue)
+        {
+            string buffer;
+            int length;
+
+            if (File.Exists(Host.TrainParametersFileName))
+            {
+                buffer = new string('\0', 256);
+                length = NativeMethods.GetPrivateProfileString(sectionName, keyName, null, buffer, buffer.Length, Host.TrainParametersFileName);
+
+                if (length > 0)
+                {
+                    buffer.Trim();
+                    return (T)Convert.ChangeType(buffer, typeof(T), System.Globalization.CultureInfo.InvariantCulture);
+                }
+            }
+
+            if (File.Exists(Host.ParametersFileName))
+            {
+                buffer = new string('\0', 256);
+                length = NativeMethods.GetPrivateProfileString(sectionName, keyName, null, buffer, buffer.Length, Host.ParametersFileName);
+
+                if (length > 0)
+                {
+                    buffer.Trim();
+                    return (T)Convert.ChangeType(buffer, typeof(T), System.Globalization.CultureInfo.InvariantCulture);
+                }
+            }
+
+            return defaultValue;
+        }
 
         /// <summary>
         /// Sends an event and/or a message to the power supply
         /// </summary>
         /// <param name="evt">The event to send</param>
         /// <param name="message">The message to send</param>
-        public void SignalEventToPowerSupply(PowerSupplyEvent evt = PowerSupplyEvent.MessageFromTcs, string message = "")
+        protected void SignalEventToPowerSupply(PowerSupplyEvent evt = PowerSupplyEvent.MessageFromTcs, string message = "")
         {
             Locomotive.LocomotivePowerSupply.HandleEventFromTcs(evt, message);
         }
@@ -559,21 +877,25 @@ namespace ORTS.Scripting.Api
         /// Called once at initialization time.
         /// </summary>
         public abstract void Initialize();
+
         /// <summary>
         /// Called once at initialization time if the train speed is greater than 0.
         /// Set as virtual to keep compatibility with scripts not providing this method.
         /// </summary>
         public virtual void InitializeMoving() { }
+
         /// <summary>
         /// Called regularly at every simulator update cycle.
         /// </summary>
         public abstract void Update();
+
         /// <summary>
         /// Called when a TCS event happens (like the alerter button pressed)
         /// </summary>
         /// <param name="evt">The event happened</param>
         /// <param name="message">The message the event wants to communicate. May be empty.</param>
         public abstract void HandleEvent(TCSEvent evt, string message);
+
         /// <summary>
         /// Called when a power supply event happens (like the circuit breaker closed)
         /// Set at virtual to keep compatibility with scripts not providing this method.
@@ -581,26 +903,31 @@ namespace ORTS.Scripting.Api
         /// <param name="evt">The event happened</param>
         /// <param name="message">The message the event wants to communicate. May be empty.</param>
         public virtual void HandleEvent(PowerSupplyEvent evt, string message) { }
+
         /// <summary>
         /// Called by signalling code externally to stop the train in certain circumstances.
         /// </summary>
         [Obsolete("SetEmergency method is deprecated, use HandleEvent(TCSEvent, string) instead")]
         public virtual void SetEmergency(bool emergency) { }
+
         /// <summary>
         /// Called when player has requested a game save. 
         /// Set at virtual to keep compatibility with scripts not providing this method.
         /// </summary>
         public virtual void Save(BinaryWriter outf) { }
+
         /// <summary>
         /// Called when player has requested a game restore. 
         /// Set at virtual to keep compatibility with scripts not providing this method.
         /// </summary>
         public virtual void Restore(BinaryReader inf) { }
+
         /// <summary>
         /// Traction cut-off request due to brake application
         /// True if cut-off is requested
         /// </summary>
         protected bool TractionCutOffRequested = false;
+
         /// <summary>
         /// Updates the traction cut-off request (due to brake application).
         /// </summary>
