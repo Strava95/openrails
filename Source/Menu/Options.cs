@@ -29,14 +29,12 @@ using GNU.Gettext.WinForms;
 using MSTS;
 using ORTS.Common.Input;
 using ORTS.Settings;
-using ORTS.Updater;
 
 namespace ORTS
 {
     public partial class OptionsForm : Form
     {
         readonly UserSettings Settings;
-        readonly UpdateManager UpdateManager;
 
         private GettextResourceManager catalog = new GettextResourceManager("Menu");
 
@@ -58,14 +56,13 @@ namespace ORTS
             }
         }
 
-        public OptionsForm(UserSettings settings, UpdateManager updateManager, bool initialContentSetup)
+        public OptionsForm(UserSettings settings, bool initialContentSetup)
         {
             InitializeComponent();
 
             Localizer.Localize(this, catalog);
 
             Settings = settings;
-            UpdateManager = updateManager;
 
             InitializeHelpIcons();
 
@@ -258,48 +255,7 @@ namespace ORTS
 
             // System tab
             comboLanguage.Text = Settings.Language;
-
-            var updateChannelNames = new Dictionary<string, string> {
-                { "stable", catalog.GetString("Stable (recommended)") },
-                { "testing", catalog.GetString("Testing") },
-                { "unstable", catalog.GetString("Unstable") },
-                { "", catalog.GetString("None") },
-            };
-            var updateChannelDescriptions = new Dictionary<string, string> {
-                { "stable", catalog.GetString("Infrequent updates to official, hand-picked versions. Recommended for most users.") },
-                { "testing", catalog.GetString("Weekly updates which may contain noticable defects. For project supporters.") },
-                { "unstable", catalog.GetString("Daily updates which may contain serious defects. For developers only.") },
-                { "", catalog.GetString("No updates.") },
-            };
-            var spacing = labelUpdateMode.Margin.Size;
-            var indent = 180;
-            var top = labelUpdateMode.Bottom + spacing.Height;
-            foreach (var channel in UpdateManager.GetChannels())
-            {
-                var radio = new RadioButton()
-                {
-                    Text = updateChannelNames[channel.ToLowerInvariant()],
-                    Margin = labelUpdateMode.Margin,
-                    Left = spacing.Width + 32, // to leave room for HelpIcon
-                    Top = top,
-                    Checked = updateManager.ChannelName.Equals(channel, StringComparison.InvariantCultureIgnoreCase),
-                    AutoSize = true,
-                    Tag = channel,
-                };
-                tabPageSystem.Controls.Add(radio);
-                var label = new Label()
-                {
-                    Text = updateChannelDescriptions[channel.ToLowerInvariant()],
-                    Margin = labelUpdateMode.Margin,
-                    Left = spacing.Width + indent,
-                    Top = top + 2, // Offset to align with radio button text
-                    Width = tabPageSystem.ClientSize.Width - indent - spacing.Width * 2,
-                    AutoSize = true,
-                };
-                tabPageSystem.Controls.Add(label);
-                top += label.Height + spacing.Height - 3; // -3 to close them up a bit
-            }
-
+            checkPreRelease.Checked = Settings.PreRelease;
             checkWindowed.Checked = !Settings.FullScreen;
             comboWindowSize.Text = Settings.WindowSize;
             checkWindowGlass.Checked = Settings.WindowGlass;
@@ -487,9 +443,7 @@ namespace ORTS
 
             // System tab
             Settings.Language = comboLanguage.SelectedValue.ToString();
-            foreach (Control control in tabPageSystem.Controls)
-                if ((control is RadioButton) && (control as RadioButton).Checked)
-                    UpdateManager.SetChannel((string)control.Tag);
+            Settings.PreRelease = checkPreRelease.Checked;
             Settings.FullScreen = !checkWindowed.Checked;
             Settings.WindowSize = GetValidWindowSize(comboWindowSize.Text);
             Settings.WindowGlass = checkWindowGlass.Checked;
@@ -873,7 +827,6 @@ namespace ORTS
 
                 // System
                 (pbLanguage, new Control[] { labelLanguage, comboLanguage }),
-                (pbUpdateMode, new Control[] { labelUpdateMode }),
                 (pbWindowed, new Control[] { checkWindowed, labelWindowSize, comboWindowSize }),
                 (pbWindowGlass, new[] { checkWindowGlass }),
                 (pbControlConfirmations, new[] { checkControlConfirmations }),
@@ -1012,10 +965,6 @@ namespace ORTS
                 {
                     pbLanguage,
                     baseUrl + "/options.html#language"
-                },
-                {
-                    pbUpdateMode,
-                    baseUrl + "/options.html#updater-options"
                 },
                 {
                     pbWindowed,

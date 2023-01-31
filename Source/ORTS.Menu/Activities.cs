@@ -16,6 +16,7 @@
 // along with Open Rails.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using GNU.Gettext;
 using Orts.Formats.Msts;
@@ -117,7 +118,10 @@ namespace ORTS.Menu
                         {
                             activities.Add(new Activity(activityFile, folder, route));
                         }
-                        catch { }
+                        catch(InvalidDataException exception)
+                        {
+                            Trace.TraceInformation($"Activity loading error: {exception.Message}");
+                        }
                     }
                 }
             }

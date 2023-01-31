@@ -15,13 +15,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Open Rails.  If not, see <http://www.gnu.org/licenses/>.
 
-using GNU.Gettext;
-using GNU.Gettext.WinForms;
-using Orts.Formats.OR;
-using ORTS.Common;
-using ORTS.Menu;
-using ORTS.Settings;
-using ORTS.Updater;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -29,10 +22,16 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Resources;
 using System.Runtime.InteropServices;
-using System.Threading;
 using System.Windows.Forms;
+using GNU.Gettext;
+using GNU.Gettext.WinForms;
+using Orts.Formats.OR;
+using ORTS.Common;
+using ORTS.Menu;
+using ORTS.Settings;
 using Path = ORTS.Menu.Path;
 
 namespace ORTS
@@ -70,7 +69,6 @@ namespace ORTS
         Task<List<TimetableInfo>> TimetableSetLoader;
         Task<List<WeatherFileInfo>> TimetableWeatherFileLoader;
         readonly ResourceManager Resources = new ResourceManager("ORTS.Properties.Resources", typeof(MainForm).Assembly);
-        readonly UpdateManager UpdateManager;
         readonly Image ElevationIcon;
 
         internal string RunActivityProgram
@@ -119,15 +117,16 @@ namespace ORTS
             // Message Box font to allow for user-customizations, though.
             Font = SystemFonts.MessageBoxFont;
 
+            string version = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion;
+
             // Set title to show revision or build info.
-            Text = String.Format(VersionInfo.Version.Length > 0 ? "{0} {1}" : "{0} build {2}", Application.ProductName, VersionInfo.Version, VersionInfo.Build);
+            Text = String.Format(version.Length > 0 ? "{0} {1}" : "{0}", Application.ProductName, version);
 #if DEBUG
             Text = Text + " (debug)";
 #endif
             panelModeTimetable.Location = panelModeActivity.Location;
             ShowDetails();
             UpdateEnabled();
-            UpdateManager = new UpdateManager(System.IO.Path.GetDirectoryName(Application.ExecutablePath), Application.ProductName, VersionInfo.VersionOrBuild);
             ElevationIcon = new Icon(SystemIcons.Shield, SystemInformation.SmallIconSize).ToBitmap();
         }
 
@@ -248,8 +247,6 @@ namespace ORTS
             ShowEnvironment();
             ShowTimetableEnvironment();
 
-            CheckForUpdate();
-
             if (!Initialized)
             {
                 LoadFolderList();
@@ -304,37 +301,6 @@ namespace ORTS
             var file = UserSettings.UserDataFolder + @"\SAVE.BIN";
             if (File.Exists(file))
                 File.Delete(file);
-        }
-
-        void CheckForUpdate()
-        {
-            // This is known directly from the chosen channel so doesn't need to wait for the update check itself.
-            linkLabelChangeLog.Visible = !string.IsNullOrEmpty(UpdateManager.ChangeLogLink);
-
-            new Task<UpdateManager>(this, () =>
-            {
-                UpdateManager.Check();
-                return null;
-            }, _ =>
-            {
-                if (UpdateManager.LastCheckError != null)
-                    linkLabelUpdate.Text = catalog.GetString("Update check failed");
-                else if (UpdateManager.LastUpdate != null && UpdateManager.LastUpdate.Version != VersionInfo.Version)
-                    linkLabelUpdate.Text = catalog.GetStringFmt("Update to {0}", UpdateManager.LastUpdate.Version);
-                else
-                    linkLabelUpdate.Text = "";
-                linkLabelUpdate.Enabled = true;
-                linkLabelUpdate.Visible = linkLabelUpdate.Text.Length > 0;
-                // Update link's elevation icon and size/position.
-                if (UpdateManager.LastCheckError == null && UpdateManager.LastUpdate != null && UpdateManager.LastUpdate.Version != VersionInfo.Version && UpdateManager.UpdaterNeedsElevation)
-                    linkLabelUpdate.Image = ElevationIcon;
-                else
-                    linkLabelUpdate.Image = null;
-                linkLabelUpdate.AutoSize = true;
-                linkLabelUpdate.Left = panelDetails.Right - linkLabelUpdate.Width - ElevationIcon.Width;
-                linkLabelUpdate.AutoSize = false;
-                linkLabelUpdate.Width = panelDetails.Right - linkLabelUpdate.Left;
-            });
         }
 
         void LoadLanguage()
@@ -515,28 +481,6 @@ namespace ORTS
         #endregion
 
         #region Misc. buttons and options
-        void linkLabelUpdate_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            if (UpdateManager.LastCheckError != null)
-            {
-                MessageBox.Show(catalog.GetStringFmt("The update check failed due to an error:\n\n{0}", UpdateManager.LastCheckError), Application.ProductName);
-                return;
-            }
-
-            UpdateManager.Update();
-
-            if (UpdateManager.LastUpdateError != null)
-            {
-                MessageBox.Show(catalog.GetStringFmt("The update failed due to an error:\n\n{0}", UpdateManager.LastUpdateError), Application.ProductName);
-                return;
-            }
-        }
-
-        void linkLabelChangeLog_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            Process.Start(UpdateManager.ChangeLogLink);
-        }
-
         void buttonTools_Click(object sender, EventArgs e)
         {
             contextMenuStripTools.Show(buttonTools, new Point(0, buttonTools.ClientSize.Height), ToolStripDropDownDirection.Default);
@@ -559,13 +503,12 @@ namespace ORTS
         {
             SaveOptions();
 
-            using (var form = new OptionsForm(Settings, UpdateManager, false))
+            using (var form = new OptionsForm(Settings, false))
             {
                 switch (form.ShowDialog(this))
                 {
                     case DialogResult.OK:
                         LoadFolderList();
-                        CheckForUpdate();
                         break;
                     case DialogResult.Retry:
                         RestartMenu();
@@ -747,7 +690,7 @@ namespace ORTS
 
                 if (!initialized && Folders.Count == 0)
                 {
-                    using (var form = new OptionsForm(Settings, UpdateManager, true))
+                    using (var form = new OptionsForm(Settings, true))
                     {
                         switch (form.ShowDialog(this))
                         {

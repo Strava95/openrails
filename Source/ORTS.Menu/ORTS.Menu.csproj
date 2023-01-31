@@ -21,6 +21,9 @@
     <DocumentationFile>..\..\Program\ORTS.Menu.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Activities.cs~RF1836eee1.TMP" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\3rdPartyLibs\GNU.Gettext\GNU.Gettext.csproj" />
     <ProjectReference Include="..\Orts.Formats.Msts\Orts.Formats.Msts.csproj" />
     <ProjectReference Include="..\ORTS.Common\ORTS.Common.csproj" />

@@ -28,7 +28,7 @@
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationManifest>..\Launcher\app.manifest</ApplicationManifest>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="WindowsBase" />
@@ -39,11 +39,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Update="Updater.ini">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\3rdPartyLibs\GNU.Gettext.WinForms\GNU.Gettext.WinForms.csproj" />
     <ProjectReference Include="..\3rdPartyLibs\GNU.Gettext\GNU.Gettext.csproj" />
     <ProjectReference Include="..\Orts.Formats.Msts\Orts.Formats.Msts.csproj" />
@@ -52,7 +47,6 @@
     <ProjectReference Include="..\Orts.Formats.OR\Orts.Formats.OR.csproj" />
     <ProjectReference Include="..\ORTS.Menu\ORTS.Menu.csproj" />
     <ProjectReference Include="..\ORTS.Settings\ORTS.Settings.csproj" />
-    <ProjectReference Include="..\ORTS.Updater\ORTS.Updater.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\info-18-2.png" />
@@ -62,6 +56,7 @@
   </ItemGroup>
   <PropertyGroup />
   <ItemGroup>
+    <PackageReference Include="Clowd.Squirrel" Version="3.0.210-g5f9f594" />
     <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.4.355802">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
