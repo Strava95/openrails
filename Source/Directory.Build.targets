@@ -3,5 +3,6 @@
     <Product>Open Rails FR</Product>
     <Version>0.1.0</Version>
     <EnableNETAnalyzers>True</EnableNETAnalyzers>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
 </Project>
