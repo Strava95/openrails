@@ -15,6 +15,7 @@
 /Source/Documentation/**/version.py
 /Source/Help
 /Source/Locales/**/*.bak
+*.exe.config
 
 ## Ignore Visual Studio Code configuration files.
 .vscode/
