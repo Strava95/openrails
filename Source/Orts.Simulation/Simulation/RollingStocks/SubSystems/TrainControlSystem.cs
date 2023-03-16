@@ -29,7 +29,6 @@ using Orts.Parsers.Msts;
 using Orts.Simulation.Physics;
 using Orts.Simulation.RollingStocks.SubSystems.Brakes;
 using Orts.Simulation.RollingStocks.SubSystems.Brakes.MSTS;
-using Orts.Simulation.RollingStocks.SubSystems.PowerSupplies;
 using ORTS.Common;
 using ORTS.Scripting.Api;
 using ORTS.Scripting.Api.ETCS;
@@ -103,10 +102,6 @@ namespace Orts.Simulation.RollingStocks.SubSystems
                 ResetOnResetButton = other.ResetOnResetButton;
             }
         }
-
-        // Constants
-        public const int TCSCabviewControlCount = 48;
-        public const int TCSCommandCount = 48;
 
         // Traction cut-off parameters
         public bool DoesBrakeCutPower { get; private set; }
@@ -200,13 +195,13 @@ namespace Orts.Simulation.RollingStocks.SubSystems
         public float MaxThrottlePercent { get; set; } = 100f;
         public bool FullDynamicBrakingOrder { get; set; }
 
-        public float[] CabDisplayControls = new float[TCSCabviewControlCount];
+        public Dictionary<int, float> CabDisplayControls = new Dictionary<int, float>();
 
         // generic TCS commands
-        public bool[] TCSCommandButtonDown = new bool[TCSCommandCount];
-        public bool[] TCSCommandSwitchOn = new bool[TCSCommandCount];
+        public Dictionary<int, bool> TCSCommandButtonDown = new Dictionary<int, bool>();
+        public Dictionary<int, bool> TCSCommandSwitchOn = new Dictionary<int, bool>();
         // List of customized control strings;
-        public string[] CustomizedCabviewControlNames = new string[TCSCabviewControlCount];
+        public Dictionary<int, string> CustomizedCabviewControlNames = new Dictionary<int, string>();
         // TODO : Delete this when SetCustomizedTCSControlString is deleted
         public int NextCabviewControlNameToEdit = 0;
 
@@ -755,14 +750,10 @@ namespace Orts.Simulation.RollingStocks.SubSystems
 
         // Converts the generic string (e.g. ORTS_TCS5) shown when browsing with the mouse on a TCS control
         // to a customized string defined in the script
-        public string GetDisplayString(string originalString)
+        public string GetDisplayString(int commandIndex)
         {
-            if (originalString.Length < 9) return originalString;
-            if (originalString.Substring(0, 8) != "ORTS_TCS") return originalString;
-            var commandIndex = Convert.ToInt32(originalString.Substring(8));
-            return commandIndex > 0 && commandIndex <= TCSCabviewControlCount && CustomizedCabviewControlNames[commandIndex - 1] != ""
-                ? CustomizedCabviewControlNames[commandIndex - 1]
-                : originalString;
+            if (CustomizedCabviewControlNames.TryGetValue(commandIndex - 1, out string name)) return name;
+            return "ORTS_TCS"+commandIndex;
         }
 
         public void Save(BinaryWriter outf)

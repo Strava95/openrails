@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ORTS.Common\n"
-"POT-Creation-Date: 2022-08-17 02:43:29+0200\n"
-"PO-Revision-Date: 2022-08-17 03:06+0200\n"
+"POT-Creation-Date: 2023-02-01 04:23:50+0100\n"
+"PO-Revision-Date: 2023-02-01 05:33+0100\n"
 "Last-Translator: GNIEWEK Cédric <gniewek.cedric@free.fr>\n"
 "Language-Team: Open Rails Dev Team\n"
 "Language: fr\n"
@@ -10,7 +10,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Poedit 3.1.1\n"
+"X-Generator: Poedit 3.2.2\n"
 
 #: ../../ORTS.Common/Conversions.cs:535
 msgid "m"
@@ -1011,29 +1011,81 @@ msgid "Control AI Fire Reset"
 msgstr "Contrôle Réinitialiser le chauffeur IA"
 
 #: ../../ORTS.Common/Input/UserCommand.cs:221
+msgid "Control Speed Regulator Mode Increase"
+msgstr "Contrôle Vitesse Imposée Incrémentation du mode"
+
+#: ../../ORTS.Common/Input/UserCommand.cs:222
+msgid "Control Speed Regulator Mode Descrease"
+msgstr "Contrôle Vitesse Imposée Décrémentation du mode"
+
+#: ../../ORTS.Common/Input/UserCommand.cs:223
+msgid "Control Selected Speed Increase"
+msgstr "Contrôle Augmentation de la Vitesse Imposée"
+
+#: ../../ORTS.Common/Input/UserCommand.cs:224
+msgid "Control Selected Speed Decrease"
+msgstr "Contrôle Réduction de la Vitesse Imposée"
+
+#: ../../ORTS.Common/Input/UserCommand.cs:225
+msgid "Control Speed Regulator Max Acceleration Increase"
+msgstr "Contrôle Régulateur de vitesse Augmentation de l'accélération maximale"
+
+#: ../../ORTS.Common/Input/UserCommand.cs:226
+msgid "Control Speed Regulator Max Acceleration Decrease"
+msgstr "Contrôle Régulateur de vitesse Réduction de l'accélération maximale"
+
+#: ../../ORTS.Common/Input/UserCommand.cs:227
+msgid "Control Number Of Axles Increase"
+msgstr "Contrôle Augmentation du nombre d'essieux"
+
+#: ../../ORTS.Common/Input/UserCommand.cs:228
+msgid "Control Number Of Axles Decrease"
+msgstr "Contrôle Réduction du nombre d'essieux"
+
+#: ../../ORTS.Common/Input/UserCommand.cs:229
+msgid "Control Restricted Speed Zone Active"
+msgstr "Contrôle Activation de l'alarme de dégagement de zone limitée en vitesse"
+
+#: ../../ORTS.Common/Input/UserCommand.cs:230
+msgid "Control Cruise Control Mode Increase"
+msgstr "Contrôle Régulateur de vitesse Incrémentation du mode"
+
+#: ../../ORTS.Common/Input/UserCommand.cs:231
+msgid "Control Cruise Control Mode Decrease"
+msgstr "Contrôle Régulateur de vitesse Décrémentation du mode"
+
+#: ../../ORTS.Common/Input/UserCommand.cs:232
+msgid "Control Train Type Change (Passenger/Cargo)"
+msgstr "Contrôle Changement de type du train (Voyageurs/Marchandises)"
+
+#: ../../ORTS.Common/Input/UserCommand.cs:233
+msgid "Control Selected Speed To Zero"
+msgstr "Contrôle Vitesse Imposée à 0"
+
+#: ../../ORTS.Common/Input/UserCommand.cs:235
 msgid "Control DP Move To Front"
 msgstr "Contrôle DT Avant"
 
-#: ../../ORTS.Common/Input/UserCommand.cs:222
+#: ../../ORTS.Common/Input/UserCommand.cs:236
 msgid "Control DP Move To Back"
 msgstr "Contrôle DT Arrière"
 
-#: ../../ORTS.Common/Input/UserCommand.cs:223
+#: ../../ORTS.Common/Input/UserCommand.cs:237
 msgid "Control DP Traction"
 msgstr "Contrôle DT Traction"
 
-#: ../../ORTS.Common/Input/UserCommand.cs:224
+#: ../../ORTS.Common/Input/UserCommand.cs:238
 msgid "Control DP Idle"
 msgstr "Contrôle DT Traction à 0"
 
-#: ../../ORTS.Common/Input/UserCommand.cs:225
+#: ../../ORTS.Common/Input/UserCommand.cs:239
 msgid "Control DP Brake"
 msgstr "Contrôle DT Freinage"
 
-#: ../../ORTS.Common/Input/UserCommand.cs:226
+#: ../../ORTS.Common/Input/UserCommand.cs:240
 msgid "Control DP More"
 msgstr "Contrôle DT Plus"
 
-#: ../../ORTS.Common/Input/UserCommand.cs:227
+#: ../../ORTS.Common/Input/UserCommand.cs:241
 msgid "Control DP Less"
 msgstr "Contrôle DT Moins"

@@ -19,14 +19,14 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using Orts.Common;
+using Orts.Simulation;
+using Orts.Simulation.Physics;
+using Orts.Simulation.RollingStocks;
 using Orts.Simulation.RollingStocks.SubSystems;
+using Orts.Simulation.RollingStocks.SubSystems.Brakes.MSTS;
+using Orts.Simulation.RollingStocks.SubSystems.PowerSupplies;
 using ORTS.Common;
 using ORTS.Scripting.Api.ETCS;
-using Orts.Simulation;
-using Orts.Simulation.RollingStocks;
-using Orts.Simulation.Physics;
-using Orts.Simulation.RollingStocks.SubSystems.PowerSupplies;
-using Orts.Simulation.RollingStocks.SubSystems.Brakes.MSTS;
 
 namespace ORTS.Scripting.Api
 {
@@ -309,6 +309,10 @@ namespace ORTS.Scripting.Api
         /// </summary>
         protected bool ArePantographsDown() => Locomotive.Pantographs.State == PantographState.Down;
 
+        /// <summary>
+        /// Get doors state
+        /// </summary>
+        public Func<DoorSide, DoorState> CurrentDoorState;
         /// <summary>
         /// Returns throttle percent
         /// </summary>
@@ -629,6 +633,16 @@ namespace ORTS.Scripting.Api
         protected void SetHorn(bool value) => Locomotive.TCSHorn = value;
 
         /// <summary>
+        /// Open or close doors
+        /// DoorSide: side for which doors will be opened or closed
+        /// bool: true for closing order, false for opening order
+        /// </summary>
+        public Action<DoorSide, bool> SetDoors;
+        /// <summary>
+        /// Lock doors so they cannot be opened
+        /// </summary>
+        public Action<DoorSide, bool> LockDoors;
+        /// <summary>
         /// Trigger Alert1 sound event
         /// </summary>
         protected void TriggerSoundAlert1() => Host.SignalEvent(Event.TrainControlSystemAlert1, this);
@@ -774,10 +788,7 @@ namespace ORTS.Scripting.Api
                 Trace.TraceWarning("SetCustomizedTCSControlString is deprecated. Please use SetCustomizedCabviewControlName.");
             }
 
-            if (Host.NextCabviewControlNameToEdit < ScriptedTrainControlSystem.TCSCabviewControlCount)
-            {
-                Host.CustomizedCabviewControlNames[Host.NextCabviewControlNameToEdit] = value;
-            }
+            Host.CustomizedCabviewControlNames[Host.NextCabviewControlNameToEdit] = value;
 
             Host.NextCabviewControlNameToEdit++;
         }
@@ -787,7 +798,7 @@ namespace ORTS.Scripting.Api
         /// </summary>
         protected void SetCustomizedCabviewControlName(int id, string name)
         {
-            if (id >= 0 && id < ScriptedTrainControlSystem.TCSCabviewControlCount)
+            if (id >= 0)
             {
                 Host.CustomizedCabviewControlNames[id] = name;
             }
@@ -1122,6 +1133,22 @@ namespace ORTS.Scripting.Api
         /// Traction cut-off relay has been opened.
         /// </summary>
         TractionCutOffRelayOpen,
+        /// <summary>
+        /// Left doors have been opened.
+        /// </summary>
+        LeftDoorsOpen,
+        /// <summary>
+        /// Left doors have been closed.
+        /// </summary>
+        LeftDoorsClosed,
+        /// <summary>
+        /// Right doors have been opened.
+        /// </summary>
+        RightDoorsOpen,
+        /// <summary>
+        /// Right doors have been closed.
+        /// </summary>
+        RightDoorsClosed
     }
 
     /// <summary>

@@ -16,6 +16,7 @@
 // along with Open Rails.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using GNU.Gettext;
@@ -97,7 +98,10 @@ namespace ORTS.Menu
                     {
                         consists.Add(new Consist(consist, folder));
                     }
-                    catch { }
+                    catch(InvalidDataException exception)
+                    {
+                        Trace.TraceInformation($"Consist loading error: {exception.Message}");
+                    }
                 }
             }
             return consists;

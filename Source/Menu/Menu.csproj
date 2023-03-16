@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>net48</TargetFramework>
     <OutputType>WinExe</OutputType>
     <RootNamespace>ORTS</RootNamespace>
     <ApplicationIcon>..\ORTS.ico</ApplicationIcon>
@@ -17,7 +17,12 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
     <DocumentationFile>..\..\Program\Menu.xml</DocumentationFile>
-    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+    <DocumentationFile>..\..\Program\Menu.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <DocumentationFile>..\..\Program\Menu.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
     <DocumentationFile>..\..\Program\Menu.xml</DocumentationFile>
@@ -28,7 +33,7 @@
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationManifest>..\Launcher\app.manifest</ApplicationManifest>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="WindowsBase" />
@@ -52,7 +57,6 @@
     <ProjectReference Include="..\Orts.Formats.OR\Orts.Formats.OR.csproj" />
     <ProjectReference Include="..\ORTS.Menu\ORTS.Menu.csproj" />
     <ProjectReference Include="..\ORTS.Settings\ORTS.Settings.csproj" />
-    <ProjectReference Include="..\ORTS.Updater\ORTS.Updater.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\info-18-2.png" />
@@ -63,6 +67,8 @@
   <PropertyGroup />
   <ItemGroup>
     <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.4.346202">
+    <PackageReference Include="Clowd.Squirrel" Version="3.0.210-g5f9f594" />
+    <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.4.410601">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="MonoGame.Framework.WindowsDX" Version="3.8.0.1641" />

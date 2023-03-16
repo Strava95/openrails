@@ -15,19 +15,30 @@
 // You should have received a copy of the GNU General Public License
 // along with Open Rails.  If not, see <http://www.gnu.org/licenses/>.
 
-using ORTS.Common;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using System.Windows.Forms;
+using NuGet.Versioning;
+using ORTS.Common;
+using Squirrel;
 
 namespace ORTS
 {
     static class Program
     {
-        [STAThread]  // requred for use of the DirectoryBrowserDialog in the main form.
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
+            SquirrelAwareApp.HandleEvents(
+                onInitialInstall: OnAppInstall,
+                onAppUpdate: OnAppUpdate,
+                onAppUninstall: OnAppUninstall);
+
+            Console.WriteLine("Squirrel events handled");
+
+            Updater.Update();
+
             Application.EnableVisualStyles();
 
             if (Debugger.IsAttached)
@@ -45,6 +56,23 @@ namespace ORTS
                     MessageBox.Show(error.ToString(), Application.ProductName + " " + VersionInfo.VersionOrBuild);
                 }
             }
+        }
+
+        private static void OnAppInstall(SemanticVersion version, IAppTools tools)
+        {
+            tools.CreateShortcutForThisExe();
+            tools.CreateUninstallerRegistryEntry();
+        }
+
+        private static void OnAppUpdate(SemanticVersion version, IAppTools tools)
+        {
+            tools.CreateUninstallerRegistryEntry();
+        }
+
+        private static void OnAppUninstall(SemanticVersion version, IAppTools tools)
+        {
+            tools.RemoveShortcutForThisExe();
+            tools.RemoveUninstallerRegistryEntry();
         }
 
         static void MainForm()

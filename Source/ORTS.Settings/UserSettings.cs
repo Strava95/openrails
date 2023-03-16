@@ -270,7 +270,8 @@ namespace ORTS.Settings
         //System settings
         [Default("")]
         public String Language { get; set; }
-        // Updater settings are saved only in "Updater.ini".
+        [Default(false)]
+        public bool PreRelease { get; set; }
         [Default(true)]
         public bool FullScreen { get; set; }
         [Default("1024x768")]

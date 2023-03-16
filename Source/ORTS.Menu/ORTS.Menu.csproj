@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>net48</TargetFramework>
     <OutputType>Library</OutputType>
     <IsPublishable>False</IsPublishable>
     <AssemblyTitle>Open Rails Menu Library</AssemblyTitle>
@@ -21,6 +21,9 @@
     <DocumentationFile>..\..\Program\ORTS.Menu.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Activities.cs~RF1836eee1.TMP" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\3rdPartyLibs\GNU.Gettext\GNU.Gettext.csproj" />
     <ProjectReference Include="..\Orts.Formats.Msts\Orts.Formats.Msts.csproj" />
     <ProjectReference Include="..\ORTS.Common\ORTS.Common.csproj" />
@@ -30,6 +33,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.4.346202">
+    <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.4.410601">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>

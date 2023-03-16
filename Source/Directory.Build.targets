@@ -1,0 +1,9 @@
+<Project>
+  <PropertyGroup>
+    <Product>Open Rails FR</Product>
+    <Version>0.1.1</Version>
+    <EnableNETAnalyzers>True</EnableNETAnalyzers>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <NoWarn>1701;1702;1591</NoWarn>
+  </PropertyGroup>
+</Project>
